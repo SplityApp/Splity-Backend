@@ -21,10 +21,20 @@ Deno.serve(async (req) => {
     supabaseAnonKey,
   );
 
+  const { data: noAuthData } = await supabase.from("test").select(
+    "*",
+  );
+  console.log(noAuthData);
+
   const { data, error } = await supabase.auth.signInWithPassword({
     email: email,
     password: password,
   });
+
+  const { data: withAuthData } = await supabase.from("test").select(
+    "*",
+  );
+  console.log(withAuthData);
 
   if (error) {
     return new Response(
