@@ -1,14 +1,16 @@
 1. Install supabase cli (for development)
    `brew install supabase/tap/supabase`
-2. Link supabase to project
+2. Login to supabase
+   `supabase login`
+3. Link supabase to project
    `supabase link`
-3. Install Deno extension for VSCode
-4. Create new function
+4. Install Deno extension for VSCode
+5. Create new function
    `supabase functions new my_function`
-5. Run function locally
+6. Run function locally
    `cd supabase/functions/my_function`
    `deno run --allow-all --watch index.ts`
-6. Deploy function
+7. Deploy function
    `supabase functions deploy my_function --project-ref bajqihucgsmrbpagxhvv`
 
 # Tutorials
