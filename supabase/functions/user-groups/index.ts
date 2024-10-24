@@ -31,13 +31,6 @@ Deno.serve(async (req) => {
 
   const { data, error } = await supabase.auth.getUser(token);
 
-  if (error) {
-    return new Response(
-      JSON.stringify({ message: error.message }),
-      { status: 401 },
-    );
-  }
-
   return new Response(
     JSON.stringify(data),
     { headers: { "Content-Type": "application/json" } },

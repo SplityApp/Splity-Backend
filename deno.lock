@@ -1,6 +1,7 @@
 {
   "version": "4",
   "specifiers": {
+    "jsr:@develiott/http-status-codes@^0.0.3": "0.0.3",
     "jsr:@std/assert@1": "1.0.6",
     "jsr:@std/internal@^1.0.4": "1.0.4",
     "jsr:@supabase/functions-js@*": "2.4.3",
@@ -16,6 +17,9 @@
     "npm:openai@^4.52.5": "4.67.3"
   },
   "jsr": {
+    "@develiott/http-status-codes@0.0.3": {
+      "integrity": "9c33f446f3807cef07637a836f4a9288aec920aaf1accdcb7ce7af9758a6ba2c"
+    },
     "@std/assert@1.0.6": {
       "integrity": "1904c05806a25d94fe791d6d883b685c9e2dcd60e4f9fc30f4fc5cf010c72207",
       "dependencies": [
@@ -223,6 +227,7 @@
   },
   "workspace": {
     "dependencies": [
+      "jsr:@develiott/http-status-codes@^0.0.3",
       "jsr:@std/assert@1"
     ]
   }

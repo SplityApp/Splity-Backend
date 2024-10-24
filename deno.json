@@ -3,6 +3,7 @@
     "dev": "deno run --watch main.ts"
   },
   "imports": {
+    "@develiott/http-status-codes": "jsr:@develiott/http-status-codes@^0.0.3",
     "@std/assert": "jsr:@std/assert@1"
   }
 }

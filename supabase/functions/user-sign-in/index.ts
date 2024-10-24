@@ -1,5 +1,6 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js";
+import { HTTP_STATUS_CODES as status } from "@develiott/http-status-codes";
 
 console.log("[EDGE] User-sign-in");
 
@@ -12,7 +13,7 @@ Deno.serve(async (req) => {
   if (!supabaseUrl || !supabaseAnonKey) {
     return new Response(
       JSON.stringify({ message: "Missing SUPABASE_URL or SUPABASE_ANON_KEY" }),
-      { status: 500 },
+      { status: status.INTERNAL_SERVER_ERROR },
     );
   }
 
@@ -29,7 +30,7 @@ Deno.serve(async (req) => {
   if (error) {
     return new Response(
       JSON.stringify({ message: error.message }),
-      { status: 500 },
+      { status: status.UNAUTHORIZED },
     );
   }
 
