@@ -1,5 +1,5 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
-import { HTTP_STATUS_CODES as status } from "@develiott/http-status-codes";
+import { STATUS_CODE } from "jsr:@std/http/status";
 import { SupabaseService } from "../../../utils/SupabaseService.ts";
 import type { Expense, Group, Payment } from "../../../utils/types.ts";
 
@@ -11,7 +11,7 @@ Deno.serve(async (req) => {
     if (!token) {
         return new Response(
             JSON.stringify({ message: "Missing token" }),
-            { status: status.UNAUTHORIZED },
+            { status: STATUS_CODE.Unauthorized },
         );
     }
 
@@ -22,22 +22,21 @@ Deno.serve(async (req) => {
     if (error) {
         return new Response(
             JSON.stringify({ message: error.message }),
-            { status: status.UNAUTHORIZED },
+            { status: STATUS_CODE.Unauthorized },
         );
     }
 
-    const groups = await supabaseService.supabase.from("groups").select(
-        `id,
-    name,
-    currency,
-    created_at,
-    groups_profiles ( user_id, group_id )`,
-    ).eq("groups_profiles.user_id", data.user.id);
+    const groups = await supabaseService.supabase
+        .from("groups")
+        .select(
+            `id, name, currency, created_at, groups_profiles ( user_id, group_id )`,
+        )
+        .eq("groups_profiles.user_id", data.user.id);
 
     if (groups.error) {
         return new Response(
             JSON.stringify({ message: groups.error.message }),
-            { status: status.INTERNAL_SERVER_ERROR },
+            { status: STATUS_CODE.InternalServerError },
         );
     }
 
@@ -45,10 +44,13 @@ Deno.serve(async (req) => {
 
     const userPayments = await Promise.allSettled(
         groupsIds.map(async (groupId: string) => {
-            return await supabaseService.supabase.from("expenses").select(
-                `description,
-        payments ( user_id, amount, state)`,
-            ).eq("group_id", groupId).eq("payments.user_id", data.user.id);
+            return await supabaseService.supabase
+                .from("expenses")
+                .select(
+                    `description, payments ( user_id, amount, state)`,
+                )
+                .eq("group_id", groupId)
+                .eq("payments.user_id", data.user.id);
         }),
     );
 
@@ -93,6 +95,9 @@ Deno.serve(async (req) => {
         JSON.stringify({
             groups: groupsWithSums,
         }),
-        { headers: { "Content-Type": "application/json" }, status: status.OK },
+        {
+            headers: { "Content-Type": "application/json" },
+            status: STATUS_CODE.OK,
+        },
     );
 });

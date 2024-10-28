@@ -1,6 +1,8 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
-import { HTTP_STATUS_CODES as status } from "@develiott/http-status-codes";
+import { STATUS_CODE } from "jsr:@std/http/status";
 import { SupabaseService } from "../../../utils/SupabaseService.ts";
+
+console.log("[EDGE] User-sign-up");
 
 Deno.serve(async (req) => {
     const { password, email, username, phoneNumber } = await req.json();
@@ -21,7 +23,7 @@ Deno.serve(async (req) => {
     if (error) {
         return new Response(
             JSON.stringify({ message: error.message }),
-            { status: status.CONFLICT },
+            { status: STATUS_CODE.Conflict },
         );
     }
 
@@ -29,7 +31,7 @@ Deno.serve(async (req) => {
         JSON.stringify(data),
         {
             headers: { "Content-Type": "application/json" },
-            status: status.CREATED,
+            status: STATUS_CODE.Created,
         },
     );
 });

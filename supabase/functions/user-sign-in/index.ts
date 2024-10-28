@@ -1,5 +1,5 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
-import { HTTP_STATUS_CODES as status } from "@develiott/http-status-codes";
+import { STATUS_CODE } from "jsr:@std/http/status";
 import { SupabaseService } from "../../../utils/SupabaseService.ts";
 
 console.log("[EDGE] User-sign-in");
@@ -18,7 +18,7 @@ Deno.serve(async (req) => {
     if (error) {
         return new Response(
             JSON.stringify({ message: error.message }),
-            { status: status.UNAUTHORIZED },
+            { status: STATUS_CODE.Unauthorized },
         );
     }
 
