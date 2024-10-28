@@ -4,11 +4,12 @@ about: Backend issue template
 title: ''
 labels: ''
 assignees: ''
-
 ---
 
 # Kroki implementacji
+
 - [ ] Krok
 
 # Testowanie
+
 - [ ] Krok
