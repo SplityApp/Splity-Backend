@@ -1,6 +1,6 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { STATUS_CODE } from "jsr:@std/http/status";
-import { SupabaseService } from "../../../utils/SupabaseService.ts";
+import { SupabaseService } from "../_shared/SupabaseService.ts";
 
 console.log("[EDGE] Get-user-info");
 
