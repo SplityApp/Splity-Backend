@@ -17,7 +17,8 @@ export interface Expense {
 }
 
 export interface Payment {
+    expense_id: string;
     user_id: string;
     amount: number;
-    state: string;
+    state: "pending" | "fulfilled";
 }
