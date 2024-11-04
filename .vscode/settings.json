@@ -1,9 +1,10 @@
 {
     "[typescript]": {
-        "editor.defaultFormatter": "denoland.vscode-deno"
+        "editor.defaultFormatter": "denoland.vscode-deno",
+        "editor.tabSize": 4
     },
     "deno.enable": true,
-    "deno.enablePaths": ["supabase/functions", "/utils"],
+    "deno.enablePaths": ["supabase/functions"],
     "deno.importMap": "./supabase/functions/import_map.json",
     "deno.lint": true,
     "deno.unstable": [
