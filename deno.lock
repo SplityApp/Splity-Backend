@@ -4,15 +4,6 @@
     "jsr:@develiott/http-status-codes@^0.0.3": "0.0.3",
     "jsr:@std/assert@1": "1.0.6",
     "jsr:@std/dotenv@*": "0.225.2",
-<<<<<<< HEAD
-    "jsr:@std/http@*": "1.0.9",
-=======
-<<<<<<< HEAD
-    "jsr:@std/http@*": "1.0.7",
-=======
-    "jsr:@std/http@*": "1.0.9",
->>>>>>> 7156bf4 (fix user-groups)
->>>>>>> 4a56f60 (fix user-groups)
     "jsr:@std/internal@^1.0.4": "1.0.4",
     "jsr:@supabase/functions-js@*": "2.4.3",
     "jsr:@supabase/supabase-js@*": "2.45.4",
@@ -38,23 +29,6 @@
     },
     "@std/dotenv@0.225.2": {
       "integrity": "e2025dce4de6c7bca21dece8baddd4262b09d5187217e231b033e088e0c4dd23"
-    },
-<<<<<<< HEAD
-<<<<<<< HEAD
-    "@std/http@1.0.9": {
-      "integrity": "d409fc319a5e8d4a154e576c758752e9700282d74f31357a12fec6420f9ecb6c"
-=======
-    "@std/http@1.0.7": {
-      "integrity": "9b904fc256678a5c9759f1a53a24a3fdcc59d83dc62099bb472683b6f819194c"
->>>>>>> 2127899 (Add process payment)
-=======
-    "@std/http@1.0.7": {
-      "integrity": "9b904fc256678a5c9759f1a53a24a3fdcc59d83dc62099bb472683b6f819194c"
-=======
-    "@std/http@1.0.9": {
-      "integrity": "d409fc319a5e8d4a154e576c758752e9700282d74f31357a12fec6420f9ecb6c"
->>>>>>> 7156bf4 (fix user-groups)
->>>>>>> 4a56f60 (fix user-groups)
     },
     "@std/internal@1.0.4": {
       "integrity": "62e8e4911527e5e4f307741a795c0b0a9e6958d0b3790716ae71ce085f755422"

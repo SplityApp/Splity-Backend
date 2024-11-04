@@ -28,13 +28,9 @@ Deno.serve(async (req) => {
 
   const groups = await supabaseService.supabase
     .from("groups")
-    .select(`
-    id,
-    name,
-    currency,
-    created_at,
-    groups_profiles!inner ( user_id, group_id )
-  `)
+    .select(
+      `id, name, currency, created_at, groups_profiles ( user_id, group_id )`,
+    )
     .eq("groups_profiles.user_id", data.user.id);
 
   if (groups.error) {
@@ -99,6 +95,9 @@ Deno.serve(async (req) => {
     JSON.stringify({
       groups: groupsWithSums,
     }),
-    { headers: { "Content-Type": "application/json" }, status: STATUS_CODE.OK },
+    {
+      headers: { "Content-Type": "application/json" },
+      status: STATUS_CODE.OK,
+    },
   );
 });
