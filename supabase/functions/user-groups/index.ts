@@ -47,7 +47,7 @@ Deno.serve(async (req) => {
             return await supabaseService.supabase
                 .from("expenses")
                 .select(
-                    `description, payments ( user_id, amount, state)`,
+                    `description, payments ( expense_id, user_id, amount, state)`,
                 )
                 .eq("group_id", groupId)
                 .eq("payments.user_id", data.user.id);
