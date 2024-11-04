@@ -1,7 +1,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { STATUS_CODE } from "jsr:@std/http/status";
-import { SupabaseService } from "../../../utils/SupabaseService.ts";
-import type { Payment } from "../../../utils/types.ts";
+import { SupabaseService } from "../_shared/SupabaseService.ts";
+import type { Payment } from "../_shared/types.ts";
 
 console.log("[EDGE] process-payment");
 
