@@ -44,15 +44,16 @@ Deno.serve(async (req) => {
         id, 
         name, 
         currency, 
-        created_at, 
+        created_at,
+        invite_code,
         groups_profiles!inner ( user_id, group_id ),
-        expenses!inner (
+        expenses (
             id,
             description,
             category,
             amount,
             paid_by,
-            payments!inner (
+            payments (
                 expense_id, 
                 user_id, 
                 amount, 
@@ -80,6 +81,7 @@ Deno.serve(async (req) => {
         name: groupData.name,
         currency: groupData.currency,
         created_at: groupData.created_at,
+        invite_code: groupData.invite_code,
         expenses: groupData.expenses.map((expense) => {
             return {
                 expense_id: expense.id,
@@ -100,7 +102,7 @@ Deno.serve(async (req) => {
 
     return new Response(
         JSON.stringify({
-            groupWithDetails,
+            group_with_details: groupWithDetails,
         }),
         {
             headers: { "Content-Type": "application/json" },

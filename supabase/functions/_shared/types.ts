@@ -33,5 +33,6 @@ export interface GroupDetailsExpense {
 }
 
 export interface GroupDetails extends Group {
+    invite_code: string;
     expenses: GroupDetailsExpense[];
 }
