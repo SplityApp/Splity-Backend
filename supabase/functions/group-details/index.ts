@@ -51,6 +51,7 @@ Deno.serve(async (req) => {
             description,
             category,
             amount,
+            paid_by,
             payments!inner (
                 expense_id, 
                 user_id, 
@@ -86,7 +87,10 @@ Deno.serve(async (req) => {
                 category: expense.category,
                 amount: expense.amount,
                 state: expense.payments.some(
-                        (payment) => payment.state === "pending",
+                        (payment) =>
+                            payment.state === "pending" &&
+                            (payment.user_id === data.user.id ||
+                                expense.paid_by === data.user.id),
                     )
                     ? "pending"
                     : "fulfilled",
