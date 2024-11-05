@@ -29,7 +29,7 @@ Deno.serve(async (req) => {
     const groups = await supabaseService.supabase
         .from("groups")
         .select(
-            `id, name, currency, created_at, groups_profiles ( user_id, group_id )`,
+            `id, name, currency, created_at, groups_profiles!inner ( user_id, group_id )`,
         )
         .eq("groups_profiles.user_id", data.user.id);
 
