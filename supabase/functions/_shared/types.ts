@@ -22,3 +22,15 @@ export interface Payment {
     amount: number;
     state: "pending" | "fulfilled";
 }
+
+export interface GroupDetailsExpense {
+    id: string;
+    description: string;
+    category: string;
+    amount: number;
+    payments: Payment[];
+}
+
+export interface GroupDetails extends Group {
+    expenses: GroupDetailsExpense[];
+}
