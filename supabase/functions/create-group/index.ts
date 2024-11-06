@@ -30,7 +30,12 @@ Deno.serve(async (req) => {
 
     const { data: group, error: groupError } = await supabaseService.supabase
         .from("groups")
-        .insert({ name, currency, created_at: new Date() }).select();
+        .insert({
+            name,
+            currency,
+            created_at: new Date(),
+            invite_code: crypto.randomUUID().slice(-6),
+        }).select();
 
     if (groupError) {
         return new Response(
