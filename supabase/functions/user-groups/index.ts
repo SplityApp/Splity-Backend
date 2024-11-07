@@ -61,7 +61,7 @@ Deno.serve(async (req) => {
     const groupsWithMyBalances = groups.data.map((group: Group) => (
         {
             ...group,
-            myBalance: 0,
+            my_balance: 0,
         }
     ));
 
@@ -104,7 +104,7 @@ Deno.serve(async (req) => {
         const myMoneyBalanceInGroup = moneyOwedToMeInGroup -
             moneyIHaveToPayInGroup;
         console.log(`My balance in group: ${myMoneyBalanceInGroup}`);
-        groupsWithMyBalances.find((group) => group.id === groupId)!.myBalance =
+        groupsWithMyBalances.find((group) => group.id === groupId)!.my_balance =
             myMoneyBalanceInGroup;
     }
 
