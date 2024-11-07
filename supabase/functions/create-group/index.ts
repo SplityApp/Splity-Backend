@@ -15,7 +15,7 @@ Deno.serve(async (req) => {
 
     if (!token) {
         return new Response(
-            JSON.stringify({ error: "Missing token" }),
+            JSON.stringify({ message: "Missing token" }),
             {
                 status: STATUS_CODE.Unauthorized,
                 headers: { "Content-Type": "application/json" },
@@ -25,7 +25,7 @@ Deno.serve(async (req) => {
 
     if (!name) {
         return new Response(
-            JSON.stringify({ error: "Missing group name" }),
+            JSON.stringify({ message: "Missing group name" }),
             {
                 status: STATUS_CODE.BadRequest,
                 headers: { "Content-Type": "application/json" },
@@ -34,7 +34,7 @@ Deno.serve(async (req) => {
     }
     if (!currency) {
         return new Response(
-            JSON.stringify({ error: "Missing currency" }),
+            JSON.stringify({ message: "Missing currency" }),
             { status: STATUS_CODE.BadRequest },
         );
     }
@@ -60,7 +60,7 @@ Deno.serve(async (req) => {
 
     if (groupError) {
         return new Response(
-            JSON.stringify({ error: groupError.message }),
+            JSON.stringify({ message: groupError.message }),
             {
                 status: STATUS_CODE.InternalServerError,
                 headers: { "Content-Type": "application/json" },
@@ -70,7 +70,7 @@ Deno.serve(async (req) => {
 
     if (!group) {
         return new Response(
-            JSON.stringify({ error: "Group not created" }),
+            JSON.stringify({ message: "Group not created" }),
             { status: STATUS_CODE.InternalServerError },
         );
     }
