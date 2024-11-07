@@ -2,6 +2,10 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { STATUS_CODE } from "jsr:@std/http/status";
 import { SupabaseService } from "../_shared/SupabaseService.ts";
 import type { GroupDetails } from "../_shared/dbTypes.ts";
+import {
+    GetGroupDetailsRequest,
+    GetGroupDetailsResponse,
+} from "../_shared/apiTypes.ts";
 
 console.log("[EDGE] group-details");
 
@@ -13,7 +17,7 @@ Deno.serve(async (req) => {
         );
     }
     const token = req.headers.get("Authorization")?.replace("Bearer ", "");
-    const { group_id: groupId } = await req.json();
+    const { group_id: groupId }: GetGroupDetailsRequest = await req.json();
 
     if (!token) {
         return new Response(
@@ -88,6 +92,7 @@ Deno.serve(async (req) => {
                 description: expense.description,
                 category: expense.category,
                 amount: expense.amount,
+                paid_by: expense.paid_by,
                 state: expense.payments.some(
                         (payment) =>
                             payment.state === "pending" &&
@@ -102,7 +107,7 @@ Deno.serve(async (req) => {
 
     return new Response(
         JSON.stringify(
-            groupWithDetails,
+            groupWithDetails as GetGroupDetailsResponse,
         ),
         {
             headers: { "Content-Type": "application/json" },

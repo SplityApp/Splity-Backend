@@ -1,6 +1,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { STATUS_CODE } from "jsr:@std/http/status";
 import { SupabaseService } from "../_shared/SupabaseService.ts";
+import { GetUserInfoResponse } from "../_shared/apiTypes.ts";
 
 console.log("[EDGE] Get-user-info");
 
@@ -26,7 +27,7 @@ Deno.serve(async (req) => {
     }
 
     return new Response(
-        JSON.stringify(data),
+        JSON.stringify(data as GetUserInfoResponse),
         {
             headers: { "Content-Type": "application/json" },
             status: STATUS_CODE.OK,
