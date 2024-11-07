@@ -101,9 +101,9 @@ Deno.serve(async (req) => {
     };
 
     return new Response(
-        JSON.stringify({
-            group_with_details: groupWithDetails,
-        }),
+        JSON.stringify(
+            groupWithDetails,
+        ),
         {
             headers: { "Content-Type": "application/json" },
             status: STATUS_CODE.Created,

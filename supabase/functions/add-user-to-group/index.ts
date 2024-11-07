@@ -1,6 +1,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { STATUS_CODE } from "jsr:@std/http/status";
 import { SupabaseService } from "../_shared/SupabaseService.ts";
+import { AddUserToGroupRequest } from "../_shared/apiTypes.ts";
 
 console.log("[EDGE] add-user-to-group");
 
@@ -13,7 +14,7 @@ Deno.serve(async (req) => {
     }
 
     const token = req.headers.get("Authorization")?.replace("Bearer ", "");
-    const { inviteCode } = await req.json();
+    const { invite_code: inviteCode }: AddUserToGroupRequest = await req.json();
 
     if (!token) {
         return new Response(
