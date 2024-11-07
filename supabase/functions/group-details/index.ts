@@ -1,7 +1,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { STATUS_CODE } from "jsr:@std/http/status";
 import { SupabaseService } from "../_shared/SupabaseService.ts";
-import type { GroupDetails } from "../_shared/types.ts";
+import type { GroupDetails } from "../_shared/dbTypes.ts";
 
 console.log("[EDGE] group-details");
 
@@ -84,7 +84,7 @@ Deno.serve(async (req) => {
         invite_code: groupData.invite_code,
         expenses: groupData.expenses.map((expense) => {
             return {
-                expense_id: expense.id,
+                id: expense.id,
                 description: expense.description,
                 category: expense.category,
                 amount: expense.amount,

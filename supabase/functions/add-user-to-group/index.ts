@@ -84,11 +84,5 @@ Deno.serve(async (req) => {
         );
     }
 
-    return new Response(
-        JSON.stringify({ message: "User added to group" }),
-        {
-            headers: { "Content-Type": "application/json" },
-            status: STATUS_CODE.Created,
-        },
-    );
+    return new Response(null, { status: STATUS_CODE.Created });
 });
