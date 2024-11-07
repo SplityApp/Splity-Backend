@@ -17,9 +17,8 @@ Deno.serve(async (req) => {
 
     const supabaseService = new SupabaseService(token);
 
-    const { data: userData, error: userError } = await supabaseService.getUser(
-        token,
-    );
+    const { data: userData, error: userError } = await supabaseService
+        .getUser(token);
 
     if (userError) {
         return new Response(
@@ -33,8 +32,6 @@ Deno.serve(async (req) => {
         .insert({
             name,
             currency,
-            created_at: new Date(),
-            invite_code: crypto.randomUUID().slice(-6),
         }).select();
 
     if (groupError) {
@@ -51,9 +48,8 @@ Deno.serve(async (req) => {
         );
     }
 
-    const { error: groupsProfilesError } = await supabaseService.supabase.from(
-        "groups_profiles",
-    )
+    const { error: groupsProfilesError } = await supabaseService.supabase
+        .from("groups_profiles")
         .insert({ user_id: userData.user.id, group_id: group[0].id });
 
     if (groupsProfilesError) {
