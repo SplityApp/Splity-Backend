@@ -21,7 +21,9 @@ Deno.serve(async (req) => {
 
     const supabaseService = new SupabaseService(token);
 
-    const { data, error: getUserError } = await supabaseService.getUser(token);
+    const { data: _, error: getUserError } = await supabaseService.getUser(
+        token,
+    );
     if (getUserError) {
         return new Response(
             JSON.stringify({ message: getUserError.message }),
@@ -67,7 +69,7 @@ Deno.serve(async (req) => {
         );
     }
 
-    const { data: _, error: updatePaymentError } = await supabaseService
+    const { data: __, error: updatePaymentError } = await supabaseService
         .supabase
         .from("payments")
         .update({ state: "fulfilled" })

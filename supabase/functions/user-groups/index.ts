@@ -1,7 +1,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { STATUS_CODE } from "jsr:@std/http/status";
 import { SupabaseService } from "../_shared/SupabaseService.ts";
-import type { Expense, Group, Payment } from "../_shared/dbTypes.ts";
+import type { Group } from "../_shared/dbTypes.ts";
 import { GetUserGroupsResponse } from "../_shared/apiTypes.ts";
 
 console.info("[EDGE] user-groups");
