@@ -1,11 +1,16 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { STATUS_CODE } from "jsr:@std/http/status";
 import { SupabaseService } from "../_shared/SupabaseService.ts";
+import { UserSignInRequest, UserSignInResponse } from "../_shared/apiTypes.ts";
 
-console.log("[EDGE] User-sign-in");
+console.info("[EDGE] User-sign-in");
 
+/**
+ * @see UserSignInRequest
+ * @see UserSignInResponse
+ */
 Deno.serve(async (req) => {
-    const { password, email } = await req.json();
+    const { password, email }: UserSignInRequest = await req.json();
 
     const supabaseService = new SupabaseService();
 
@@ -25,7 +30,7 @@ Deno.serve(async (req) => {
     return new Response(
         JSON.stringify({
             token: data.session.access_token,
-        }),
+        } as UserSignInResponse),
         { headers: { "Content-Type": "application/json" } },
     );
 });

@@ -3,8 +3,12 @@ import { STATUS_CODE } from "jsr:@std/http/status";
 import { SupabaseService } from "../_shared/SupabaseService.ts";
 import { AddUserToGroupRequest } from "../_shared/apiTypes.ts";
 
-console.log("[EDGE] add-user-to-group");
+console.info("[EDGE] add-user-to-group");
 
+/**
+ * @see AddUserToGroupRequest
+ * No response body for this endpoint.
+ */
 Deno.serve(async (req) => {
     if (req.method !== "POST") {
         return new Response(

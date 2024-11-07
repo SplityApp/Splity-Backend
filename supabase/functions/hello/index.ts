@@ -1,6 +1,6 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 
-console.log("Hello from Functions!");
+console.info("Hello from Functions!");
 
 Deno.serve((_req) => {
     const data = {

@@ -3,28 +3,38 @@ import { STATUS_CODE } from "jsr:@std/http/status";
 import { SupabaseService } from "../_shared/SupabaseService.ts";
 import { CreateGroupRequest } from "../_shared/apiTypes.ts";
 
-console.log("[EDGE] create-group");
+console.info("[EDGE] create-group");
 
+/**
+ * @see CreateGroupRequest
+ * No response body for this endpoint.
+ */
 Deno.serve(async (req) => {
     const token = req.headers.get("Authorization")?.replace("Bearer ", "");
     const { name, currency }: CreateGroupRequest = await req.json();
 
     if (!token) {
         return new Response(
-            JSON.stringify({ message: "Missing token" }),
-            { status: STATUS_CODE.Unauthorized },
+            JSON.stringify({ error: "Missing token" }),
+            {
+                status: STATUS_CODE.Unauthorized,
+                headers: { "Content-Type": "application/json" },
+            },
         );
     }
 
     if (!name) {
         return new Response(
-            JSON.stringify({ message: "Missing group name" }),
-            { status: STATUS_CODE.BadRequest },
+            JSON.stringify({ error: "Missing group name" }),
+            {
+                status: STATUS_CODE.BadRequest,
+                headers: { "Content-Type": "application/json" },
+            },
         );
     }
     if (!currency) {
         return new Response(
-            JSON.stringify({ message: "Missing currency" }),
+            JSON.stringify({ error: "Missing currency" }),
             { status: STATUS_CODE.BadRequest },
         );
     }
@@ -36,7 +46,7 @@ Deno.serve(async (req) => {
 
     if (userError) {
         return new Response(
-            JSON.stringify({ message: userError.message }),
+            JSON.stringify({ error: userError.message }),
             { status: STATUS_CODE.Unauthorized },
         );
     }
@@ -50,14 +60,17 @@ Deno.serve(async (req) => {
 
     if (groupError) {
         return new Response(
-            JSON.stringify({ message: groupError.message }),
-            { status: STATUS_CODE.InternalServerError },
+            JSON.stringify({ error: groupError.message }),
+            {
+                status: STATUS_CODE.InternalServerError,
+                headers: { "Content-Type": "application/json" },
+            },
         );
     }
 
     if (!group) {
         return new Response(
-            JSON.stringify({ message: "Group not created" }),
+            JSON.stringify({ error: "Group not created" }),
             { status: STATUS_CODE.InternalServerError },
         );
     }

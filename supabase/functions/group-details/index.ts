@@ -7,8 +7,12 @@ import {
     GetGroupDetailsResponse,
 } from "../_shared/apiTypes.ts";
 
-console.log("[EDGE] group-details");
+console.info("[EDGE] group-details");
 
+/**
+ * @see GetGroupDetailsRequest
+ * @see GetGroupDetailsResponse
+ */
 Deno.serve(async (req) => {
     if (req.method !== "POST") {
         return new Response(
@@ -57,6 +61,9 @@ Deno.serve(async (req) => {
             category,
             amount,
             paid_by,
+            payer:profiles!paid_by (
+                user_name
+            ),
             payments (
                 expense_id, 
                 user_id, 
@@ -79,7 +86,7 @@ Deno.serve(async (req) => {
         );
     }
 
-    const groupData = groups.data[0] as GroupDetails;
+    const groupData = groups.data[0] as unknown as GroupDetails;
     const groupWithDetails = {
         id: groupData.id,
         name: groupData.name,
@@ -92,7 +99,7 @@ Deno.serve(async (req) => {
                 description: expense.description,
                 category: expense.category,
                 amount: expense.amount,
-                paid_by: expense.paid_by,
+                paid_by: expense.payer.user_name,
                 state: expense.payments.some(
                         (payment) =>
                             payment.state === "pending" &&

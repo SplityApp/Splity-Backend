@@ -29,6 +29,9 @@ export interface GroupDetailsExpense {
     category: string;
     amount: number;
     paid_by: string;
+    payer: {
+        user_name: string;
+    };
     payments: Payment[];
 }
 

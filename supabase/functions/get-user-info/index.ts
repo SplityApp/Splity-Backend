@@ -3,8 +3,12 @@ import { STATUS_CODE } from "jsr:@std/http/status";
 import { SupabaseService } from "../_shared/SupabaseService.ts";
 import { GetUserInfoResponse } from "../_shared/apiTypes.ts";
 
-console.log("[EDGE] Get-user-info");
+console.info("[EDGE] Get-user-info");
 
+/**
+ * No request body is required for this endpoint.
+ * @see GetUserInfoResponse
+ */
 Deno.serve(async (req) => {
     const token = req.headers.get("Authorization")?.replace("Bearer ", "");
 

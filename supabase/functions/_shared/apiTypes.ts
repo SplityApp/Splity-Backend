@@ -1,4 +1,5 @@
-import { User } from "jsr:@supabase/supabase-js@2";
+import { Session, User } from "jsr:@supabase/supabase-js@2";
+import { GroupProfiles } from "./dbTypes.ts";
 
 // Request types
 
@@ -13,6 +14,23 @@ export type CreateGroupRequest = {
 
 export type GetGroupDetailsRequest = {
     group_id: string;
+};
+
+export type ProcessPaymentRequest = {
+    payer_id: string;
+    expense_id: string;
+};
+
+export type UserSignInRequest = {
+    email: string;
+    password: string;
+};
+
+export type UserSignUpRequest = {
+    email: string;
+    password: string;
+    username: string;
+    phone_number: string;
 };
 
 // Response types
@@ -35,4 +53,22 @@ export type GetGroupDetailsResponse = {
         paid_by: string;
         state: string;
     }[];
+};
+
+export type GetUserGroupsResponse = {
+    my_balance: number;
+    id: string;
+    name: string;
+    currency: string;
+    created_at: string;
+    groups_profiles: GroupProfiles[];
+}[];
+
+export type UserSignInResponse = {
+    token: string;
+};
+
+export type UserSignUpResponse = {
+    user: User | null;
+    session: Session | null;
 };

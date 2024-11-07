@@ -3,8 +3,12 @@ import { STATUS_CODE } from "jsr:@std/http/status";
 import { SupabaseService } from "../_shared/SupabaseService.ts";
 import type { Payment } from "../_shared/dbTypes.ts";
 
-console.log("[EDGE] process-payment");
+console.info("[EDGE] process-payment");
 
+/**
+ * @see ProcessPaymentRequest
+ * @see ProcessPaymentResponse
+ */
 Deno.serve(async (req) => {
     const token = req.headers.get("Authorization")?.replace("Bearer ", "");
 
@@ -25,7 +29,7 @@ Deno.serve(async (req) => {
         );
     }
 
-    const { expenseId, payerId } = await req.json();
+    const { expense_id: expenseId, payer_id: payerId } = await req.json();
     if (!expenseId || !payerId) {
         return new Response(
             JSON.stringify({ message: "Missing data" }),
@@ -63,13 +67,13 @@ Deno.serve(async (req) => {
         );
     }
 
-    const { data: updatedPayment, error: updatePaymentError } =
-        await supabaseService.supabase
-            .from("payments")
-            .update({ state: "fulfilled" })
-            .eq("expense_id", expenseId)
-            .eq("user_id", payerId)
-            .single();
+    const { data: _, error: updatePaymentError } = await supabaseService
+        .supabase
+        .from("payments")
+        .update({ state: "fulfilled" })
+        .eq("expense_id", expenseId)
+        .eq("user_id", payerId)
+        .single();
 
     if (updatePaymentError) {
         return new Response(
@@ -79,7 +83,7 @@ Deno.serve(async (req) => {
     }
 
     return new Response(
-        JSON.stringify(updatedPayment),
+        null,
         {
             headers: { "Content-Type": "application/json" },
             status: STATUS_CODE.Created,

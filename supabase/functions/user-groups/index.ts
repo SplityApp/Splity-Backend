@@ -2,9 +2,14 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { STATUS_CODE } from "jsr:@std/http/status";
 import { SupabaseService } from "../_shared/SupabaseService.ts";
 import type { Expense, Group, Payment } from "../_shared/dbTypes.ts";
+import { GetUserGroupsResponse } from "../_shared/apiTypes.ts";
 
-console.log("[EDGE] user-groups");
+console.info("[EDGE] user-groups");
 
+/**
+ * No request body is needed for this endpoint.
+ * @see GetUserGroupsResponse
+ */
 Deno.serve(async (req) => {
     const token = req.headers.get("Authorization")?.replace("Bearer ", "");
 
@@ -110,7 +115,7 @@ Deno.serve(async (req) => {
 
     return new Response(
         JSON.stringify({
-            groups: groupsWithMyBalances,
+            groups: groupsWithMyBalances as GetUserGroupsResponse,
         }),
         {
             headers: { "Content-Type": "application/json" },
