@@ -61,6 +61,7 @@ Deno.serve(async (req) => {
             category,
             amount,
             paid_by,
+            created_at,
             payer:profiles!paid_by (
                 user_name
             ),
@@ -100,6 +101,7 @@ Deno.serve(async (req) => {
                 category: expense.category,
                 amount: expense.amount,
                 paid_by: expense.payer.user_name,
+                created_at: expense.created_at,
                 state: expense.payments.some(
                         (payment) =>
                             payment.state === "pending" &&

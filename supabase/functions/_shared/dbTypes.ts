@@ -29,6 +29,7 @@ export interface GroupDetailsExpense {
     category: string;
     amount: number;
     paid_by: string;
+    created_at: string;
     payer: {
         user_name: string;
     };
