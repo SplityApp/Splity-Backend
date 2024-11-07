@@ -41,59 +41,76 @@ Deno.serve(async (req) => {
     }
 
     const groupsIds = groups.data.map((group: Group) => group.id);
+    const myId = data.user.id;
 
-    const userPayments = await Promise.allSettled(
+    const expensesWithinGroups = await Promise.all(
         groupsIds.map(async (groupId: string) => {
-            return await supabaseService.supabase
+            const expensesPopulatedWithPayments = await supabaseService.supabase
                 .from("expenses")
                 .select(
-                    `description, payments ( expense_id, user_id, amount, state)`,
+                    `description, paid_by, amount, payments ( expense_id, user_id, amount, state)`,
                 )
-                .eq("group_id", groupId)
-                .eq("payments.user_id", data.user.id);
+                .eq("group_id", groupId);
+            return {
+                groupId,
+                data: expensesPopulatedWithPayments.data,
+            };
         }),
     );
 
-    const groupSums = groupsIds.reduce(
-        (acc: Record<string, number>, groupId: string, index: number) => {
-            const result = userPayments[index];
+    const groupsWithMyBalances = groups.data.map((group: Group) => (
+        {
+            ...group,
+            myBalance: 0,
+        }
+    ));
 
-            if (
-                result.status === "fulfilled" && !result.value.error
-            ) {
-                const sum = result.value.data.reduce(
-                    (total: number, expense: Expense) => {
-                        const payments = expense.payments.filter((payment) =>
-                            payment.state === "pending"
-                        ) || [];
-                        return total +
-                            payments.reduce(
-                                (paymentTotal: number, payment: Payment) =>
-                                    paymentTotal + (payment.amount || 0),
-                                0,
-                            );
-                    },
-                    0,
-                );
+    for (
+        const { data: expensesWithinOneGroup, groupId } of expensesWithinGroups
+    ) {
+        console.log(`\nGroup: ${groupId}`);
+        let allPaidByMeInGroup = 0;
+        let moneyOwedToMeInGroup = 0;
+        let moneyIHaveToPayInGroup = 0;
 
-                acc[groupId] = sum;
-            } else {
-                acc[groupId] = 0;
+        if (!expensesWithinOneGroup) {
+            console.error("No expenses found");
+            continue;
+        }
+
+        for (const expense of expensesWithinOneGroup) {
+            console.log(
+                `Expense: ${expense.description}, amount: ${expense.amount}`,
+            );
+            console.log(JSON.stringify(expense, null, 2));
+            if (expense.paid_by === myId) {
+                allPaidByMeInGroup += expense.amount;
             }
 
-            return acc;
-        },
-        {},
-    );
+            for (const payment of expense.payments) {
+                if (expense.paid_by == myId && payment.state === "pending") {
+                    moneyOwedToMeInGroup += payment.amount;
+                } else if (
+                    payment.user_id == myId && payment.state === "pending"
+                ) {
+                    moneyIHaveToPayInGroup += payment.amount;
+                }
+            }
+        }
 
-    const groupsWithSums = groups.data.map((group: Group) => ({
-        ...group,
-        totalAmount: groupSums[group.id] || 0,
-    }));
+        console.log(`Total paid by me in group: ${allPaidByMeInGroup}`);
+        console.log(`Total owed to me in group: ${moneyOwedToMeInGroup}`);
+        console.log(`Total I have to pay in group: ${moneyIHaveToPayInGroup}`);
+        const myMoneyBalanceInGroup = moneyOwedToMeInGroup -
+            moneyIHaveToPayInGroup;
+        console.log(`My balance in group: ${myMoneyBalanceInGroup}`);
+        groupsWithMyBalances.find((group) => group.id === groupId)!.myBalance =
+            myMoneyBalanceInGroup;
+    }
 
     return new Response(
         JSON.stringify({
-            groups: groupsWithSums,
+            groups: groupsWithMyBalances,
         }),
         {
             headers: { "Content-Type": "application/json" },

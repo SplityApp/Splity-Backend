@@ -15,6 +15,19 @@ Deno.serve(async (req) => {
         );
     }
 
+    if (!name) {
+        return new Response(
+            JSON.stringify({ message: "Missing group name" }),
+            { status: STATUS_CODE.BadRequest },
+        );
+    }
+    if (!currency) {
+        return new Response(
+            JSON.stringify({ message: "Missing currency" }),
+            { status: STATUS_CODE.BadRequest },
+        );
+    }
+
     const supabaseService = new SupabaseService(token);
 
     const { data: userData, error: userError } = await supabaseService
@@ -59,11 +72,5 @@ Deno.serve(async (req) => {
         );
     }
 
-    return new Response(
-        JSON.stringify({ group }),
-        {
-            headers: { "Content-Type": "application/json" },
-            status: STATUS_CODE.Created,
-        },
-    );
+    return new Response(null, { status: STATUS_CODE.Created });
 });
