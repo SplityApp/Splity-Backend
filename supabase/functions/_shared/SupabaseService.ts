@@ -1,5 +1,4 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
-import "jsr:@std/dotenv/load";
 import { createClient, SupabaseClient } from "jsr:@supabase/supabase-js";
 
 export class SupabaseService {
