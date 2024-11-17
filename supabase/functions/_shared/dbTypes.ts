@@ -12,8 +12,13 @@ export interface GroupProfiles {
 }
 
 export interface Expense {
+    id: string;
+    group_id: string;
     description: string;
-    payments: Payment[];
+    category: string;
+    amount: number;
+    paid_by: string;
+    created_at: string;
 }
 
 export interface Payment {

@@ -37,6 +37,17 @@ export type GetBalancesRequest = {
     group_id: string;
 };
 
+export type AddExpenseRequest = {
+    group_id: string;
+    description: string;
+    category: string;
+    amount: number;
+    splits: {
+        user_id: string;
+        amount: number;
+    }[];
+};
+
 // Response types
 
 export type GetUserInfoResponse = {
