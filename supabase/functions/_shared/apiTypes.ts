@@ -33,6 +33,10 @@ export type UserSignUpRequest = {
     phone_number: string;
 };
 
+export type GetBalancesRequest = {
+    group_id: string;
+};
+
 // Response types
 
 export type GetUserInfoResponse = {
@@ -71,4 +75,15 @@ export type UserSignInResponse = {
 export type UserSignUpResponse = {
     user: User | null;
     session: Session | null;
+};
+
+export type GetBalancesResponse = {
+    users: UserBalance[];
+    request_user: UserBalance;
+};
+
+export type UserBalance = {
+    id: string;
+    balance: number;
+    name: string;
 };

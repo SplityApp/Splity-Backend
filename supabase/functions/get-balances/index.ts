@@ -4,6 +4,10 @@ import { SupabaseService } from "../_shared/SupabaseService.ts";
 
 console.log("[EDGE] Get-balances");
 
+/**
+ * @see GetBalancesRequest
+ * @see GetBalancesResponse
+ */
 Deno.serve(async (req) => {
     const token = req.headers.get("Authorization")?.replace("Bearer ", "");
 
@@ -14,9 +18,9 @@ Deno.serve(async (req) => {
         );
     }
 
-    const groupData: { groupId: string } = await req.json();
+    const groupData: { group_id: string } = await req.json();
 
-    if (!groupData.groupId) {
+    if (!groupData.group_id) {
         return new Response(
             JSON.stringify({ message: "Missing groupId" }),
             { status: STATUS_CODE.BadRequest },
@@ -40,7 +44,7 @@ Deno.serve(async (req) => {
         .from("groups")
         .select(
             `id, name, currency, created_at, groups_profiles!inner ( user_id, group_id )`,
-        ).eq("id", groupData.groupId);
+        ).eq("id", groupData.group_id);
 
     if (group.error) {
         return new Response(
@@ -66,7 +70,7 @@ Deno.serve(async (req) => {
         .select(
             `description, paid_by, amount, payments ( expense_id, user_id, amount, state)`,
         )
-        .eq("group_id", groupData.groupId);
+        .eq("group_id", groupData.group_id);
 
     if (expensesPopulatedWithPayments.error) {
         return new Response(
@@ -106,42 +110,53 @@ Deno.serve(async (req) => {
         user.balance = myMoneyBalanceInGroup;
     }
 
-    const updatedUsers = await Promise.all(
-        usersWithinGroup.map(async (user) => {
-            const { data, error } = await supabaseService.supabase
-                .from("profiles")
-                .select("user_name")
-                .eq("id", user.id)
-                .single();
+    try {
+        const updatedUsers = await Promise.all(
+            usersWithinGroup.map(async (user) => {
+                const { data, error } = await supabaseService.supabase
+                    .from("profiles")
+                    .select("user_name")
+                    .eq("id", user.id)
+                    .single();
 
-            if (error) {
-                throw new Error(error.message);
-            }
+                if (error) {
+                    throw new Error(error.message);
+                }
 
-            return {
-                ...user,
-                name: data.user_name,
-            };
-        }),
-    );
+                return {
+                    ...user,
+                    name: data.user_name,
+                };
+            }),
+        );
 
-    const requestUser = updatedUsers.find((user) => user.id === requestUserID);
+        const requestUser = updatedUsers.find((user) =>
+            user.id === requestUserID
+        );
 
-    if (!requestUser) {
+        if (!requestUser) {
+            return new Response(
+                JSON.stringify({ message: "User not found" }),
+                { status: STATUS_CODE.NotFound },
+            );
+        }
+
+        const filteredUsers = updatedUsers.filter((user) =>
+            user.id !== requestUserID
+        );
+
+        const response = {
+            request_user: requestUser,
+            users: filteredUsers,
+        };
+
+        return new Response(JSON.stringify(response), {
+            status: STATUS_CODE.OK,
+        });
+    } catch (error) {
         return new Response(
-            JSON.stringify({ message: "User not found" }),
-            { status: STATUS_CODE.NotFound },
+            JSON.stringify({ message: (error as Error).message }),
+            { status: STATUS_CODE.InternalServerError },
         );
     }
-
-    const filteredUsers = updatedUsers.filter((user) =>
-        user.id !== requestUserID
-    );
-
-    const response = {
-        requestUser: requestUser,
-        users: filteredUsers,
-    };
-
-    return new Response(JSON.stringify(response), { status: STATUS_CODE.OK });
 });
