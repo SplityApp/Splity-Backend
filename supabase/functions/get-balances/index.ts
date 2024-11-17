@@ -148,6 +148,7 @@ Deno.serve(async (req) => {
         const response = {
             request_user: requestUser,
             users: filteredUsers,
+            currency: group.data[0].currency,
         };
 
         return new Response(JSON.stringify(response), {
