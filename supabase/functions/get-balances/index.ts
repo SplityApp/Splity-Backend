@@ -43,7 +43,7 @@ Deno.serve(async (req) => {
     const group = await supabaseService.supabase
         .from("groups")
         .select(
-            `id, name, currency, created_at, groups_profiles!inner ( user_id, group_id )`,
+            `id, name, created_at, groups_profiles!inner ( user_id, group_id )`,
         ).eq("id", groupData.group_id);
 
     if (group.error) {
@@ -148,7 +148,6 @@ Deno.serve(async (req) => {
         const response = {
             request_user: requestUser,
             users: filteredUsers,
-            currency: group.data[0].currency,
         };
 
         return new Response(JSON.stringify(response), {
