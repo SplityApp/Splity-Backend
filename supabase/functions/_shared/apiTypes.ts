@@ -60,15 +60,17 @@ export type GetGroupDetailsResponse = {
     currency: string;
     created_at: string;
     invite_code: string;
-    expenses: {
-        id: string;
-        description: string;
-        category: string;
-        amount: number;
-        paid_by: string;
-        state: string;
-    }[];
 };
+
+export type GetGroupExpensesResponse = {
+    id: string;
+    description: string;
+    category: string;
+    amount: number;
+    paid_by: string;
+    state: string;
+    created_at: string;
+}[];
 
 export type GetUserGroupsResponse = {
     my_balance: number;

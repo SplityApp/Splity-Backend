@@ -4,7 +4,7 @@ import { SupabaseService } from "../_shared/SupabaseService.ts";
 import type { GroupDetails } from "../_shared/dbTypes.ts";
 import {
     GetGroupDetailsRequest,
-    type GetGroupDetailsResponse,
+    type GetGroupExpensesResponse,
 } from "../_shared/apiTypes.ts";
 
 console.info("[EDGE] group-details");
@@ -54,7 +54,24 @@ Deno.serve(async (req) => {
         currency, 
         created_at,
         invite_code,
-        groups_profiles!inner ( user_id, group_id )`)
+        groups_profiles!inner ( user_id, group_id ),
+        expenses (
+            id,
+            description,
+            category,
+            amount,
+            paid_by,
+            created_at,
+            payer:profiles!paid_by (
+                user_name
+            ),
+            payments (
+                expense_id, 
+                user_id, 
+                amount, 
+                state
+            )
+        )`)
         .eq("id", groupId)
         .eq("groups_profiles.user_id", data.user.id);
 
@@ -71,17 +88,28 @@ Deno.serve(async (req) => {
     }
 
     const groupData = groups.data[0] as unknown as GroupDetails;
-    const groupWithDetails = {
-        id: groupData.id,
-        name: groupData.name,
-        currency: groupData.currency,
-        created_at: groupData.created_at,
-        invite_code: groupData.invite_code,
-    };
+    const expenses = groupData.expenses.map((expense) => {
+        return {
+            id: expense.id,
+            description: expense.description,
+            category: expense.category,
+            amount: expense.amount,
+            paid_by: expense.payer.user_name,
+            created_at: expense.created_at,
+            state: expense.payments.some(
+                    (payment) =>
+                        payment.state === "pending" &&
+                        (payment.user_id === data.user.id ||
+                            expense.paid_by === data.user.id),
+                )
+                ? "pending"
+                : "fulfilled",
+        };
+    });
 
     return new Response(
         JSON.stringify(
-            groupWithDetails as GetGroupDetailsResponse,
+            expenses as GetGroupExpensesResponse,
         ),
         {
             headers: { "Content-Type": "application/json" },
