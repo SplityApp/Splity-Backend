@@ -16,15 +16,30 @@ Deno.serve(async (req) => {
         phone_number: phoneNumber,
     }: UserSignUpRequest = await req.json();
 
+    if (!email || !password || !username || !phoneNumber) {
+        return new Response(
+            JSON.stringify({ message: "Missing required fields" }),
+            { status: STATUS_CODE.BadRequest },
+        );
+    } else if (
+        !email.trim().length || !password.trim().length ||
+        !username.trim().length || !phoneNumber.trim().length
+    ) {
+        return new Response(
+            JSON.stringify({ message: "Invalid input" }),
+            { status: STATUS_CODE.BadRequest },
+        );
+    }
+
     const supabaseService = new SupabaseService();
 
     const { data, error } = await supabaseService.supabase.auth.signUp({
-        email: email,
-        password: password,
+        email: email.trim(),
+        password: password.trim(),
         options: {
             data: {
-                username: username,
-                phoneNumber: phoneNumber,
+                username: username.trim(),
+                phoneNumber: phoneNumber.trim(),
             },
         },
     });
