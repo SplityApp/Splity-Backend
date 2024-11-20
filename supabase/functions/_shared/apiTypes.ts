@@ -48,6 +48,25 @@ export type AddExpenseRequest = {
     }[];
 };
 
+export type ChangeNotificationsRequest = {
+    allowed_notifications: boolean;
+};
+
+export type GetExpensesInCategoryRequest = {
+    category: string;
+};
+
+export type GetExpensesBetweenDatesRequest = {
+    start_date: string;
+    end_date: string;
+};
+
+export type ChangeUserInfoRequest = {
+    username: string;
+    phone_number: string;
+    char_image: string;
+}
+
 // Response types
 
 export type GetUserInfoResponse = {
@@ -107,10 +126,6 @@ export type UserBalance = {
     name: string;
 };
 
-export type ChangeNotificationsRequest = {
-    allowed_notifications: boolean;
-};
-
 export type ChangeNotificationsResponse = {
     allowed_notifications: boolean;
 };
@@ -119,12 +134,3 @@ export type GetExpensesByCategoryResponse = {
     category: string;
     total_amount: number;
 }[];
-
-export type GetExpensesInCategoryRequest = {
-    category: string;
-};
-
-export type GetExpensesBetweenDatesRequest = {
-    start_date: string;
-    end_date: string;
-};

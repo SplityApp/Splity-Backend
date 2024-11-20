@@ -29,6 +29,11 @@ Deno.serve(async (req) => {
             JSON.stringify({ message: "Invalid input" }),
             { status: STATUS_CODE.BadRequest },
         );
+    } else if (!phoneNumber.trim().match(/^\d{10}$/)) {
+        return new Response(
+            JSON.stringify({ message: "Invalid phone number" }),
+            { status: STATUS_CODE.BadRequest },
+        );
     }
 
     const supabaseService = new SupabaseService();

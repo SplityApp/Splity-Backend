@@ -45,3 +45,12 @@ export interface GroupDetails extends Group {
     invite_code: string;
     expenses: GroupDetailsExpense[];
 }
+
+export interface Profile {
+    id: string;
+    user_name: string;
+    email: string;
+    phone_number: string;
+    char_image: string;
+    allowed_notifications: boolean;
+}
