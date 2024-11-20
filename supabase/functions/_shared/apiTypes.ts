@@ -106,3 +106,11 @@ export type UserBalance = {
     balance: number;
     name: string;
 };
+
+export type ChangeNotificationsRequest = {
+    allowed_notifications: boolean;
+};
+
+export type ChangeNotificationsResponse = {
+    allowed_notifications: boolean;
+};
