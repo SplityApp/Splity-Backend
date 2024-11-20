@@ -114,3 +114,17 @@ export type ChangeNotificationsRequest = {
 export type ChangeNotificationsResponse = {
     allowed_notifications: boolean;
 };
+
+export type GetExpensesByCategoryResponse = {
+    category: string;
+    total_amount: number;
+}[];
+
+export type GetExpensesInCategoryRequest = {
+    category: string;
+};
+
+export type GetExpensesBetweenDatesRequest = {
+    start_date: string;
+    end_date: string;
+};

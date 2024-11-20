@@ -3,14 +3,14 @@ import { STATUS_CODE } from "jsr:@std/http/status";
 import { SupabaseService } from "../_shared/SupabaseService.ts";
 import type { GroupDetails } from "../_shared/dbTypes.ts";
 import {
-    GetGroupDetailsRequest,
+    type GetExpensesBetweenDatesRequest,
     type GetGroupExpensesResponse,
 } from "../_shared/apiTypes.ts";
 
-console.info("[EDGE] group-expenses");
+console.info("[EDGE] expenses-between-dates");
 
 /**
- * @see GetGroupDetailsRequest
+ * @see GetExpensesBetweenDatesRequest
  * @see GetGroupExpensesResponse
  */
 Deno.serve(async (req) => {
@@ -21,16 +21,17 @@ Deno.serve(async (req) => {
         );
     }
     const token = req.headers.get("Authorization")?.replace("Bearer ", "");
-    const { group_id: groupId }: GetGroupDetailsRequest = await req.json();
+    const { start_date, end_date }: GetExpensesBetweenDatesRequest = await req
+        .json();
 
     if (!token) {
         return new Response(
             JSON.stringify({ message: "Missing token" }),
             { status: STATUS_CODE.Unauthorized },
         );
-    } else if (!groupId) {
+    } else if (!start_date?.length || !end_date?.length) {
         return new Response(
-            JSON.stringify({ message: "Missing groupId" }),
+            JSON.stringify({ message: "Missing dates" }),
             { status: STATUS_CODE.BadRequest },
         );
     }
@@ -65,15 +66,18 @@ Deno.serve(async (req) => {
             payer:profiles!paid_by (
                 user_name
             ),
-            payments (
+            payments!inner (
                 expense_id, 
                 user_id, 
                 amount, 
-                state
+                state,
+                created_at
             )
         )`)
-        .eq("id", groupId)
-        .eq("groups_profiles.user_id", data.user.id);
+        .eq("groups_profiles.user_id", data.user.id)
+        .gte("expenses.payments.created_at", new Date(start_date).toISOString())
+        .lte("expenses.payments.created_at", new Date(end_date).toISOString())
+        .eq("expenses.payments.user_id", data.user.id);
 
     if (groups.error) {
         return new Response(
@@ -82,45 +86,46 @@ Deno.serve(async (req) => {
         );
     } else if (!groups.data.length) {
         return new Response(
-            JSON.stringify({ message: "Group not found" }),
-            { status: STATUS_CODE.NotFound },
-        );
-    }
-
-    const groupData = groups.data[0] as unknown as GroupDetails;
-    if (!groupData?.expenses?.length) {
-        return new Response(
             JSON.stringify([] as GetGroupExpensesResponse),
             { status: STATUS_CODE.NotFound },
         );
     }
 
-    const expenses = groupData.expenses.map((expense) => {
-        return {
-            id: expense.id,
-            description: expense.description,
-            category: expense.category,
-            amount: expense.amount,
-            paid_by: expense.payer.user_name,
-            created_at: expense.created_at,
-            state: expense.payments.some(
-                    (payment) =>
-                        payment.state === "pending" &&
-                        (payment.user_id === data.user.id ||
-                            expense.paid_by === data.user.id),
-                )
-                ? "pending"
-                : "fulfilled",
-        };
+    const groupData = groups.data as unknown as GroupDetails[];
+    if (groupData.some((group) => !group?.expenses?.length)) {
+        return new Response(
+            JSON.stringify([] as GetGroupExpensesResponse),
+            { status: STATUS_CODE.NotFound },
+        );
+    }
+    const expenses = groupData.map((group) => {
+        return group.expenses.map((expense) => {
+            return {
+                id: expense.id,
+                description: expense.description,
+                category: expense.category,
+                amount: expense.amount,
+                paid_by: expense.payer.user_name,
+                created_at: expense.created_at,
+                state: expense.payments.some(
+                        (payment) =>
+                            payment.state === "pending" &&
+                            (payment.user_id === data.user.id ||
+                                expense.paid_by === data.user.id),
+                    )
+                    ? "pending"
+                    : "fulfilled",
+            };
+        });
     });
 
     return new Response(
         JSON.stringify(
-            expenses as GetGroupExpensesResponse,
+            expenses as unknown as GetGroupExpensesResponse,
         ),
         {
             headers: { "Content-Type": "application/json" },
-            status: STATUS_CODE.OK,
+            status: STATUS_CODE.Created,
         },
     );
 });

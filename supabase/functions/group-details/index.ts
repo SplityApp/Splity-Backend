@@ -85,7 +85,7 @@ Deno.serve(async (req) => {
         ),
         {
             headers: { "Content-Type": "application/json" },
-            status: STATUS_CODE.Created,
+            status: STATUS_CODE.OK,
         },
     );
 });
