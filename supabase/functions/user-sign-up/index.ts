@@ -40,6 +40,7 @@ Deno.serve(async (req) => {
             data: {
                 username: username.trim(),
                 phoneNumber: phoneNumber.trim(),
+                charImage: username.trim().charAt(0).toUpperCase(),
             },
         },
     });

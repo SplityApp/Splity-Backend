@@ -51,7 +51,12 @@ export type AddExpenseRequest = {
 // Response types
 
 export type GetUserInfoResponse = {
-    user: User;
+    id: string;
+    email: string;
+    phone_number: string;
+    username: string;
+    created_at: string;
+    char_image: string;
 };
 
 export type GetGroupDetailsResponse = {

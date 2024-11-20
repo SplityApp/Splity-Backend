@@ -30,8 +30,17 @@ Deno.serve(async (req) => {
         );
     }
 
+    const response: GetUserInfoResponse = {
+        id: data.user.id,
+        email: data.user.user_metadata.email,
+        phone_number: data.user.user_metadata.phoneNumber,
+        username: data.user.user_metadata.username,
+        created_at: data.user.created_at,
+        char_image: data.user.user_metadata.charImage
+    }
+
     return new Response(
-        JSON.stringify(data as GetUserInfoResponse),
+        JSON.stringify(response),
         {
             headers: { "Content-Type": "application/json" },
             status: STATUS_CODE.OK,
