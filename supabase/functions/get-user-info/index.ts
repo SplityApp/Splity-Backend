@@ -30,13 +30,27 @@ Deno.serve(async (req) => {
         );
     }
 
+    const { data: profileData, error: profileError } = await supabaseService.supabase
+        .from("profiles")
+        .select(`id, allowed_notifications`)
+        .eq("id", data.user.id)
+        .single();
+    
+    if (profileError) {
+        return new Response(
+            JSON.stringify({ message: profileError.message }),
+            { status: STATUS_CODE.InternalServerError },
+        );
+    }
+
     const response: GetUserInfoResponse = {
         id: data.user.id,
         email: data.user.user_metadata.email,
         phone_number: data.user.user_metadata.phoneNumber,
         username: data.user.user_metadata.username,
         created_at: data.user.created_at,
-        char_image: data.user.user_metadata.charImage
+        char_image: data.user.user_metadata.charImage,
+        allowed_notifications: profileData.allowed_notifications,
     }
 
     return new Response(

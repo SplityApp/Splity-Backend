@@ -57,6 +57,7 @@ export type GetUserInfoResponse = {
     username: string;
     created_at: string;
     char_image: string;
+    allowed_notifications: boolean;
 };
 
 export type GetGroupDetailsResponse = {
