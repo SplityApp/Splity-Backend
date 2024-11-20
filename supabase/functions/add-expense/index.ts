@@ -2,6 +2,7 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { AddExpenseRequest } from "../_shared/apiTypes.ts";
 import { SupabaseService } from "../_shared/SupabaseService.ts";
 import { STATUS_CODE } from "jsr:@std/http/status";
+import { ExpenseCategory } from "../_shared/enums.ts";
 
 console.info("[EDGE] add-expense");
 
@@ -14,6 +15,13 @@ Deno.serve(async (req) => {
         return new Response(
             JSON.stringify({ message: "Missing token" }),
             { status: STATUS_CODE.Unauthorized },
+        );
+    } else if (
+        !Object.values(ExpenseCategory).includes(category as ExpenseCategory)
+    ) {
+        return new Response(
+            JSON.stringify({ message: "Invalid category" }),
+            { status: STATUS_CODE.BadRequest },
         );
     }
 
