@@ -13,14 +13,17 @@ export class SupabaseService {
         if (!this.supabaseUrl || !this.supabaseKey) {
             throw new Error("Missing SUPABASE_URL or SUPABASE_ANON_KEY");
         }
+
+        const headers = token
+            ? { Authorization: `Bearer ${token}` }
+            : undefined;
+
         this.supabase = createClient(
             this.supabaseUrl,
             this.supabaseKey,
             {
                 global: {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
+                    headers,
                 },
             },
         );
