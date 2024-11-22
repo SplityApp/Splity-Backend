@@ -30,12 +30,13 @@ Deno.serve(async (req) => {
         );
     }
 
-    const { data: profileData, error: profileError } = await supabaseService.supabase
+    const { data: profileData, error: profileError } = await supabaseService
+        .supabase
         .from("profiles")
-        .select(`id, allowed_notifications`)
+        .select(`*`)
         .eq("id", data.user.id)
         .single();
-    
+
     if (profileError) {
         return new Response(
             JSON.stringify({ message: profileError.message }),
@@ -44,14 +45,14 @@ Deno.serve(async (req) => {
     }
 
     const response: GetUserInfoResponse = {
-        id: data.user.id,
-        email: data.user.user_metadata.email,
-        phone_number: data.user.user_metadata.phoneNumber,
-        username: data.user.user_metadata.username,
-        created_at: data.user.created_at,
-        char_image: data.user.user_metadata.charImage,
+        id: profileData.id,
+        email: profileData.email,
+        phone_number: profileData.phone_number,
+        username: profileData.username,
+        char_image: profileData.char_image,
         allowed_notifications: profileData.allowed_notifications,
-    }
+        created_at: data.user.created_at,
+    };
 
     return new Response(
         JSON.stringify(response),
