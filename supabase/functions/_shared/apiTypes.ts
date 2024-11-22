@@ -65,7 +65,7 @@ export type ChangeUserInfoRequest = {
     username: string;
     email: string;
     char_image: string;
-}
+};
 
 // Response types
 
@@ -110,6 +110,7 @@ export type GetUserGroupsResponse = {
 
 export type UserSignInResponse = {
     token: string;
+    refresh_token: string;
 };
 
 export type UserSignUpResponse = {

@@ -29,4 +29,24 @@ export class SupabaseService {
     async getUser(token: string) {
         return await this.supabase.auth.getUser(token);
     }
+
+    async getSession(refreshToken: string) {
+        const { data: getSessionData, error: _errorSessionData } = await this
+            .supabase.auth
+            .getSession();
+
+        if (!getSessionData.session) {
+            const { data: refreshData, error: errorRefreshData } = await this
+                .supabase.auth
+                .refreshSession({
+                    refresh_token: refreshToken,
+                });
+
+            if (errorRefreshData || !refreshData || !refreshData.session) {
+                return null;
+            }
+            return refreshData.session;
+        }
+        return getSessionData.session;
+    }
 }

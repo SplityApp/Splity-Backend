@@ -21,12 +21,22 @@ Deno.serve(async (req) => {
         );
     }
     const token = req.headers.get("Authorization")?.replace("Bearer ", "");
+    const refreshToken = req.headers.get("Refresh-Token")?.replace(
+        "Bearer ",
+        "",
+    );
+
     const { username, char_image, email }: ChangeUserInfoRequest = await req
         .json();
 
     if (!token) {
         return new Response(
             JSON.stringify({ message: "Missing token" }),
+            { status: STATUS_CODE.Unauthorized },
+        );
+    } else if (!refreshToken) {
+        return new Response(
+            JSON.stringify({ message: "Missing refresh token" }),
             { status: STATUS_CODE.Unauthorized },
         );
     } else if (
@@ -40,6 +50,14 @@ Deno.serve(async (req) => {
     }
 
     const supabaseService = new SupabaseService(token);
+
+    const session = await supabaseService.getSession(refreshToken);
+    if (!session) {
+        return new Response(
+            JSON.stringify({ message: "Invalid refresh token" }),
+            { status: STATUS_CODE.Unauthorized },
+        );
+    }
 
     const { data, error } = await supabaseService.supabase.auth.updateUser({
         email: email.trim(),

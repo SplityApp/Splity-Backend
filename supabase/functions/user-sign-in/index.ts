@@ -30,6 +30,7 @@ Deno.serve(async (req) => {
     return new Response(
         JSON.stringify({
             token: data.session.access_token,
+            refresh_token: data.session.refresh_token,
         } as UserSignInResponse),
         { headers: { "Content-Type": "application/json" } },
     );
