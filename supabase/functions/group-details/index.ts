@@ -1,7 +1,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { STATUS_CODE } from "jsr:@std/http/status";
 import { SupabaseService } from "../_shared/SupabaseService.ts";
-import type { GroupDetails, Profile } from "../_shared/dbTypes.ts";
+import type { GroupDetails } from "../_shared/dbTypes.ts";
 import {
     GetGroupDetailsRequest,
     type GetGroupDetailsResponse,

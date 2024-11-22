@@ -1,6 +1,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { STATUS_CODE } from "jsr:@std/http/status";
 import { SupabaseService } from "../_shared/SupabaseService.ts";
+import type { GroupProfiles } from "../_shared/dbTypes.ts";
 
 console.log("[EDGE] Get-balances");
 
@@ -54,7 +55,7 @@ Deno.serve(async (req) => {
     }
 
     if (
-        !group.data[0].groups_profiles.flatMap((profile: any) =>
+        !group.data[0].groups_profiles.flatMap((profile: GroupProfiles) =>
             profile.user_id
         )
             .includes(data.user.id)
