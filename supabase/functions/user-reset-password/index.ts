@@ -15,33 +15,18 @@ Deno.serve(async (req) => {
             { status: STATUS_CODE.MethodNotAllowed },
         );
     }
-    const token = req.headers.get("Authorization")?.replace("Bearer ", "");
-
-    if (!token) {
+    const { email } = await req.json();
+    if (!email?.trim()?.length) {
         return new Response(
-            JSON.stringify({ message: "Missing token" }),
-            { status: STATUS_CODE.Unauthorized },
-        );
-    }
-
-    const supabaseService = new SupabaseService(token);
-
-    const { data: userData, error: userError } = await supabaseService.supabase
-        .auth.getUser(token);
-    if (userError) {
-        return new Response(
-            JSON.stringify({ message: userError.message }),
-            { status: STATUS_CODE.Unauthorized },
-        );
-    } else if (!userData.user.email) {
-        return new Response(
-            JSON.stringify({ message: "Email not found" }),
+            JSON.stringify({ message: "Missing email" }),
             { status: STATUS_CODE.BadRequest },
         );
     }
 
+    const supabaseService = new SupabaseService();
+
     const { data: _data, error } = await supabaseService.supabase.auth
-        .resetPasswordForEmail(userData.user.email, {
+        .resetPasswordForEmail(email, {
             redirectTo: "http://localhost:3000/reset-password",
         });
     if (error) {
