@@ -115,7 +115,7 @@ Deno.serve(async (req) => {
             usersWithinGroup.map(async (user) => {
                 const { data, error } = await supabaseService.supabase
                     .from("profiles")
-                    .select("user_name")
+                    .select("username")
                     .eq("id", user.id)
                     .single();
 
@@ -125,7 +125,7 @@ Deno.serve(async (req) => {
 
                 return {
                     ...user,
-                    name: data.user_name,
+                    name: data.username,
                 };
             }),
         );

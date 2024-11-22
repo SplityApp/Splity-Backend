@@ -1,7 +1,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { STATUS_CODE } from "jsr:@std/http/status";
 import { SupabaseService } from "../_shared/SupabaseService.ts";
-import type { GroupDetails } from "../_shared/dbTypes.ts";
+import type { GroupDetailsWithExpenses } from "../_shared/dbTypes.ts";
 import {
     GetGroupDetailsRequest,
     type GetGroupExpensesResponse,
@@ -63,7 +63,7 @@ Deno.serve(async (req) => {
             paid_by,
             created_at,
             payer:profiles!paid_by (
-                user_name
+                username
             ),
             payments (
                 expense_id, 
@@ -87,7 +87,7 @@ Deno.serve(async (req) => {
         );
     }
 
-    const groupData = groups.data[0] as unknown as GroupDetails;
+    const groupData = groups.data[0] as unknown as GroupDetailsWithExpenses;
     if (!groupData?.expenses?.length) {
         return new Response(
             JSON.stringify([] as GetGroupExpensesResponse),
@@ -101,7 +101,7 @@ Deno.serve(async (req) => {
             description: expense.description,
             category: expense.category,
             amount: expense.amount,
-            paid_by: expense.payer.user_name,
+            paid_by: expense.payer.username,
             created_at: expense.created_at,
             state: expense.payments.some(
                     (payment) =>

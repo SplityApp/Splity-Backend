@@ -1,5 +1,5 @@
 import { Session, User } from "jsr:@supabase/supabase-js@2";
-import { GroupProfiles } from "./dbTypes.ts";
+import { GroupProfiles, type Profile } from "./dbTypes.ts";
 
 // Request types
 
@@ -84,7 +84,9 @@ export type GetGroupDetailsResponse = {
     name: string;
     currency: string;
     created_at: string;
+    updated_at: string;
     invite_code: string;
+    profiles: Profile[];
 };
 
 export type GetGroupExpensesResponse = {

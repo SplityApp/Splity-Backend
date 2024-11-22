@@ -1,7 +1,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { STATUS_CODE } from "jsr:@std/http/status";
 import { SupabaseService } from "../_shared/SupabaseService.ts";
-import type { GroupDetails } from "../_shared/dbTypes.ts";
+import type { GroupDetailsWithExpenses } from "../_shared/dbTypes.ts";
 import { type GetExpensesByCategoryResponse } from "../_shared/apiTypes.ts";
 import { ExpenseCategory } from "../_shared/enums.ts";
 
@@ -79,7 +79,7 @@ Deno.serve(async (req) => {
         );
     }
 
-    const groupData = groups.data as unknown as GroupDetails[];
+    const groupData = groups.data as unknown as GroupDetailsWithExpenses[];
 
     const expensesByCategory = Object.values(ExpenseCategory).map(
         (value) => {

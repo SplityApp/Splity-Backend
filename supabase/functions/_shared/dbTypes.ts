@@ -36,19 +36,24 @@ export interface GroupDetailsExpense {
     paid_by: string;
     created_at: string;
     payer: {
-        user_name: string;
+        username: string;
     };
     payments: Payment[];
 }
 
-export interface GroupDetails extends Group {
+export interface GroupDetailsWithExpenses extends Group {
     invite_code: string;
     expenses: GroupDetailsExpense[];
 }
 
+export interface GroupDetails extends Group {
+    invite_code: string;
+    profiles: Profile[];
+}
+
 export interface Profile {
     id: string;
-    user_name: string;
+    username: string;
     email: string;
     phone_number: string;
     char_image: string;

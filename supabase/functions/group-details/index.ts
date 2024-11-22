@@ -1,7 +1,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { STATUS_CODE } from "jsr:@std/http/status";
 import { SupabaseService } from "../_shared/SupabaseService.ts";
-import type { GroupDetails } from "../_shared/dbTypes.ts";
+import type { GroupDetails, Profile } from "../_shared/dbTypes.ts";
 import {
     GetGroupDetailsRequest,
     type GetGroupDetailsResponse,
@@ -54,7 +54,8 @@ Deno.serve(async (req) => {
         currency, 
         created_at,
         invite_code,
-        groups_profiles!inner ( user_id, group_id )`)
+        groups_profiles!inner ( user_id, group_id ),
+        profiles!inner ( id, email, phone_number, username, char_image, allowed_notifications )`)
         .eq("id", groupId)
         .eq("groups_profiles.user_id", data.user.id);
 
@@ -70,13 +71,35 @@ Deno.serve(async (req) => {
         );
     }
 
+    const { data: lastGroupExpenseData, error: lastGroupExpenseError } =
+        await supabaseService
+            .supabase
+            .from("expenses")
+            .select(`group_id, created_at`)
+            .eq("group_id", groupId)
+            .order("created_at", { ascending: false })
+            .limit(1);
+
+    if (lastGroupExpenseError) {
+        return new Response(
+            JSON.stringify({ message: lastGroupExpenseError.message }),
+            { status: STATUS_CODE.InternalServerError },
+        );
+    }
+
     const groupData = groups.data[0] as unknown as GroupDetails;
+    const lastExpense = lastGroupExpenseData.length === 1
+        ? lastGroupExpenseData[0] as unknown as { created_at: string }
+        : { created_at: groupData.created_at };
+
     const groupWithDetails = {
         id: groupData.id,
         name: groupData.name,
         currency: groupData.currency,
-        created_at: groupData.created_at,
         invite_code: groupData.invite_code,
+        profiles: groupData.profiles,
+        created_at: groupData.created_at,
+        updated_at: lastExpense.created_at,
     };
 
     return new Response(

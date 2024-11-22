@@ -30,7 +30,8 @@ Deno.serve(async (req) => {
             { status: STATUS_CODE.Unauthorized },
         );
     } else if (
-        !username?.trim()?.length && !char_image?.trim()?.length && !phone_number?.trim()?.length
+        !username?.trim()?.length && !char_image?.trim()?.length &&
+        !phone_number?.trim()?.length
     ) {
         return new Response(
             JSON.stringify({ message: "Missing fields" }),
@@ -58,7 +59,7 @@ Deno.serve(async (req) => {
         .supabase
         .from("profiles")
         .update({
-            user_name: username.trim(),
+            username: username.trim(),
             char_image: char_image.trim().charAt(0),
             phone_number: phone_number.trim(),
         })
@@ -76,7 +77,7 @@ Deno.serve(async (req) => {
 
     const response: GetUserInfoResponse = {
         id: actualProfileData.id,
-        username: actualProfileData.user_name,
+        username: actualProfileData.username,
         email: actualProfileData.email,
         phone_number: actualProfileData.phone_number,
         char_image: actualProfileData.char_image,
