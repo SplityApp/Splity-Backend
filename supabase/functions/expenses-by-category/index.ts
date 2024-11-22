@@ -10,6 +10,8 @@ console.info("[EDGE] expenses-by-category");
 /**
  * No request body required
  * @see GetExpensesByCategoryResponse
+ * @remarks Expense amount is always positive here
+ * (does not matter if you paid it or someone else did you still spent that amount)
  */
 Deno.serve(async (req) => {
     if (req.method !== "GET") {
@@ -90,7 +92,7 @@ Deno.serve(async (req) => {
             return {
                 category: value,
                 total_amount: expenses.reduce(
-                    (acc, cur) => acc + cur.amount,
+                    (acc, cur) => acc + Math.abs(cur.amount),
                     0,
                 ),
             };

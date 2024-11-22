@@ -12,6 +12,8 @@ console.info("[EDGE] expenses-between-dates");
 /**
  * @see GetExpensesBetweenDatesRequest
  * @see GetGroupExpensesResponse
+ * @remarks Expense amount is always positive here
+ * (does not matter if you paid it or someone else did you still spent that amount)
  */
 Deno.serve(async (req) => {
     if (req.method !== "POST") {
@@ -104,7 +106,7 @@ Deno.serve(async (req) => {
                 id: expense.id,
                 description: expense.description,
                 category: expense.category,
-                amount: expense.amount,
+                amount: Math.abs(expense.amount),
                 paid_by: expense.payer.username,
                 created_at: expense.created_at,
                 state: expense.payments.some(
