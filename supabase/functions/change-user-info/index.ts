@@ -57,7 +57,7 @@ Deno.serve(async (req) => {
         .from("profiles")
         .update({
             username: username.trim(),
-            char_image: char_image.trim().charAt(0),
+            char_image: char_image.trim(),
             email: email.trim(),
         })
         .eq("id", data.user.id)
