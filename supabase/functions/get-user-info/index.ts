@@ -46,7 +46,7 @@ Deno.serve(async (req) => {
 
     const response: GetUserInfoResponse = {
         id: profileData.id,
-        email: profileData.email,
+        email: data.user.email ?? profileData.email,
         phone_number: profileData.phone_number,
         username: profileData.username,
         char_image: profileData.char_image,
