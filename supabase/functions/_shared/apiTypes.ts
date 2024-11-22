@@ -63,7 +63,7 @@ export type GetExpensesBetweenDatesRequest = {
 
 export type ChangeUserInfoRequest = {
     username: string;
-    phone_number: string;
+    email: string;
     char_image: string;
 }
 

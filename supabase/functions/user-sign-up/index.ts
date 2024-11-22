@@ -40,6 +40,7 @@ Deno.serve(async (req) => {
 
     const { data, error } = await supabaseService.supabase.auth.signUp({
         email: email.trim(),
+        phone: phoneNumber.trim(),
         password: password.trim(),
         options: {
             data: {

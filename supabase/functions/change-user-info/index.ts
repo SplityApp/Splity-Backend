@@ -21,8 +21,8 @@ Deno.serve(async (req) => {
         );
     }
     const token = req.headers.get("Authorization")?.replace("Bearer ", "");
-    const { username, char_image, phone_number }: ChangeUserInfoRequest =
-        await req.json();
+    const { username, char_image, email }: ChangeUserInfoRequest = await req
+        .json();
 
     if (!token) {
         return new Response(
@@ -31,22 +31,19 @@ Deno.serve(async (req) => {
         );
     } else if (
         !username?.trim()?.length && !char_image?.trim()?.length &&
-        !phone_number?.trim()?.length
+        !email?.trim()?.length
     ) {
         return new Response(
             JSON.stringify({ message: "Missing fields" }),
-            { status: STATUS_CODE.BadRequest },
-        );
-    } else if (!phone_number.trim().match(/^\d{10}$/)) {
-        return new Response(
-            JSON.stringify({ message: "Invalid phone number" }),
             { status: STATUS_CODE.BadRequest },
         );
     }
 
     const supabaseService = new SupabaseService(token);
 
-    const { data, error } = await supabaseService.supabase.auth.getUser(token);
+    const { data, error } = await supabaseService.supabase.auth.updateUser({
+        email: email.trim(),
+    });
 
     if (error) {
         return new Response(
@@ -61,7 +58,7 @@ Deno.serve(async (req) => {
         .update({
             username: username.trim(),
             char_image: char_image.trim().charAt(0),
-            phone_number: phone_number.trim(),
+            email: email.trim(),
         })
         .eq("id", data.user.id)
         .select("*");
