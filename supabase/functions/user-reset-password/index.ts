@@ -26,9 +26,7 @@ Deno.serve(async (req) => {
     const supabaseService = new SupabaseService();
 
     const { data: _data, error } = await supabaseService.supabase.auth
-        .resetPasswordForEmail(email, {
-            redirectTo: "http://localhost:3000/reset-password",
-        });
+        .resetPasswordForEmail(email);
     if (error) {
         return new Response(
             JSON.stringify({ message: error.message }),
