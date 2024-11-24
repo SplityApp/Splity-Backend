@@ -137,3 +137,10 @@ export type GetExpensesByCategoryResponse = {
     category: string;
     total_amount: number;
 }[];
+
+export type GetExpensesBetweenDatesResponse = {
+    // 2022/1
+    date: string;
+    total_amount: number;
+    expenses: GetGroupExpensesResponse;
+}[];

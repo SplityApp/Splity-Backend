@@ -4,6 +4,7 @@ import { SupabaseService } from "../_shared/SupabaseService.ts";
 import type { GroupDetailsWithExpenses } from "../_shared/dbTypes.ts";
 import {
     type GetExpensesBetweenDatesRequest,
+    type GetExpensesBetweenDatesResponse,
     type GetGroupExpensesResponse,
 } from "../_shared/apiTypes.ts";
 
@@ -11,7 +12,7 @@ console.info("[EDGE] expenses-between-dates");
 
 /**
  * @see GetExpensesBetweenDatesRequest
- * @see GetGroupExpensesResponse
+ * @see GetExpensesBetweenDatesResponse
  * @remarks Expense amount is always positive here
  * (does not matter if you paid it or someone else did you still spent that amount)
  */
@@ -49,6 +50,9 @@ Deno.serve(async (req) => {
         );
     }
 
+    const startDate = new Date(start_date);
+    const endDate = new Date(end_date);
+
     const groups = await supabaseService.supabase
         .from("groups")
         .select(`
@@ -77,8 +81,8 @@ Deno.serve(async (req) => {
             )
         )`)
         .eq("groups_profiles.user_id", data.user.id)
-        .gte("expenses.payments.created_at", new Date(start_date).toISOString())
-        .lte("expenses.payments.created_at", new Date(end_date).toISOString())
+        .gte("expenses.payments.created_at", startDate.toISOString())
+        .lte("expenses.payments.created_at", endDate.toISOString())
         .eq("expenses.payments.user_id", data.user.id);
 
     if (groups.error) {
@@ -88,7 +92,7 @@ Deno.serve(async (req) => {
         );
     } else if (!groups.data.length) {
         return new Response(
-            JSON.stringify([] as GetGroupExpensesResponse),
+            JSON.stringify([] as GetExpensesBetweenDatesResponse),
             { status: STATUS_CODE.NotFound },
         );
     }
@@ -96,13 +100,34 @@ Deno.serve(async (req) => {
     const groupData = groups.data as unknown as GroupDetailsWithExpenses[];
     if (groupData.some((group) => !group?.expenses?.length)) {
         return new Response(
-            JSON.stringify([] as GetGroupExpensesResponse),
+            JSON.stringify([] as GetExpensesBetweenDatesResponse),
             { status: STATUS_CODE.NotFound },
         );
     }
-    const expenses = groupData.map((group) => {
-        return group.expenses.map((expense) => {
-            return {
+
+    const startMonth = startDate.getMonth();
+    const startYear = startDate.getFullYear();
+    const endMonth = endDate.getMonth();
+    const endYear = endDate.getFullYear();
+
+    const datesBetweenExpenseMap = new Map<string, GetGroupExpensesResponse>();
+    const datesBetweenExpenseAmountMap = new Map<string, number>();
+    for (let i = startYear; i <= endYear; i++) {
+        for (
+            let j = i === startYear ? startMonth : 1;
+            j <= (i === endYear ? endMonth : 12);
+            j++
+        ) {
+            datesBetweenExpenseMap.set(`${i}/${j}`, []);
+            datesBetweenExpenseAmountMap.set(`${i}/${j}`, 0);
+        }
+    }
+
+    groupData.forEach((group) => {
+        group.expenses.forEach((expense) => {
+            const date = new Date(expense.created_at);
+            const key = `${date.getFullYear()}/${date.getMonth()}`;
+            datesBetweenExpenseMap.get(key)?.push({
                 id: expense.id,
                 description: expense.description,
                 category: expense.category,
@@ -117,13 +142,26 @@ Deno.serve(async (req) => {
                     )
                     ? "pending"
                     : "fulfilled",
-            };
+            });
+            datesBetweenExpenseAmountMap.set(
+                key,
+                datesBetweenExpenseAmountMap.get(key) ??
+                    0 + Math.abs(expense.amount),
+            );
         });
     });
 
+    const response = Array.from(datesBetweenExpenseMap.entries()).map(
+        ([key, expenses]) => ({
+            date: key,
+            total_amount: datesBetweenExpenseAmountMap.get(key) ?? 0,
+            expenses,
+        }),
+    );
+
     return new Response(
         JSON.stringify(
-            expenses as unknown as GetGroupExpensesResponse,
+            response as GetExpensesBetweenDatesResponse,
         ),
         {
             headers: { "Content-Type": "application/json" },
