@@ -2,30 +2,40 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { STATUS_CODE } from "jsr:@std/http/status";
 import { SupabaseService } from "../_shared/SupabaseService.ts";
 import type { GroupDetailsWithExpenses } from "../_shared/dbTypes.ts";
-import { type GetExpensesByCategoryResponse } from "../_shared/apiTypes.ts";
+import {
+    type GetExpensesBetweenDatesRequest,
+    type GetExpensesByCategoryResponse,
+} from "../_shared/apiTypes.ts";
 import { ExpenseCategory } from "../_shared/enums.ts";
 
 console.info("[EDGE] expenses-by-category");
 
 /**
- * No request body required
+ * @see GetExpensesBetweenDatesRequest
  * @see GetExpensesByCategoryResponse
  * @remarks Expense amount is always positive here
  * (does not matter if you paid it or someone else did you still spent that amount)
  */
 Deno.serve(async (req) => {
-    if (req.method !== "GET") {
+    if (req.method !== "POST") {
         return new Response(
             JSON.stringify({ message: "Method not allowed" }),
             { status: STATUS_CODE.MethodNotAllowed },
         );
     }
     const token = req.headers.get("Authorization")?.replace("Bearer ", "");
+    const { start_date, end_date }: GetExpensesBetweenDatesRequest = await req
+        .json();
 
     if (!token) {
         return new Response(
             JSON.stringify({ message: "Missing token" }),
             { status: STATUS_CODE.Unauthorized },
+        );
+    } else if (!start_date?.length || !end_date?.length) {
+        return new Response(
+            JSON.stringify({ message: "Missing dates" }),
+            { status: STATUS_CODE.BadRequest },
         );
     }
 
@@ -64,7 +74,9 @@ Deno.serve(async (req) => {
             )
         )`)
         .eq("groups_profiles.user_id", data.user.id)
-        .eq("expenses.payments.user_id", data.user.id);
+        .eq("expenses.payments.user_id", data.user.id)
+        .gte("expenses.payments.created_at", start_date)
+        .lte("expenses.payments.created_at", end_date);
 
     if (groups.error) {
         return new Response(
