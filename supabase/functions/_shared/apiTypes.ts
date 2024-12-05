@@ -68,6 +68,14 @@ export type ChangeUserInfoRequest = {
     char_image: string;
 };
 
+export type SetFcmTokenRequest = {
+    fcm_token: string;
+};
+
+export type GetNotificationsRequest = {
+    user_id: string;
+};
+
 // Response types
 
 export type GetUserInfoResponse = {
