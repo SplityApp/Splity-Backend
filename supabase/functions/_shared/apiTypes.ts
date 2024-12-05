@@ -74,6 +74,8 @@ export type SetFcmTokenRequest = {
 
 export type GetNotificationsRequest = {
     user_id: string;
+    title: string;
+    description: string;
 };
 
 // Response types

@@ -75,8 +75,8 @@ Deno.serve(async (req) => {
                 message: {
                     token: fcmToken,
                     notification: {
-                        title: `Notification from Supabase`,
-                        body: "Some notificaion",
+                        title: payload.title,
+                        body: payload.description,
                     },
                 },
             }),
