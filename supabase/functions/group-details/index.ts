@@ -1,7 +1,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { STATUS_CODE } from "jsr:@std/http/status";
 import { SupabaseService } from "../_shared/SupabaseService.ts";
-import type { GroupDetails } from "../_shared/dbTypes.ts";
+import type { GroupDetails, Profile } from "../_shared/dbTypes.ts";
 import {
     GetGroupDetailsRequest,
     type GetGroupDetailsResponse,
@@ -9,10 +9,6 @@ import {
 
 console.info("[EDGE] group-details");
 
-/**
- * @see GetGroupDetailsRequest
- * @see GetGroupExpensesResponse
- */
 Deno.serve(async (req) => {
     if (req.method !== "POST") {
         return new Response(
@@ -52,12 +48,22 @@ Deno.serve(async (req) => {
         id, 
         name, 
         currency, 
-        created_at,
-        invite_code,
-        groups_profiles!inner ( user_id, group_id ),
-        profiles!inner ( id, email, phone_number, username, char_image, allowed_notifications )`)
-        .eq("id", groupId)
-        .eq("groups_profiles.user_id", data.user.id);
+        created_at, 
+        invite_code, 
+        groups_profiles!inner (
+            user_id, 
+            group_id,
+            profiles!inner (
+                id, 
+                email, 
+                phone_number, 
+                username, 
+                char_image, 
+                allowed_notifications
+            )
+        )
+    `)
+        .eq("id", groupId);
 
     if (groups.error) {
         return new Response(
@@ -87,25 +93,27 @@ Deno.serve(async (req) => {
         );
     }
 
-    const groupData = groups.data[0] as unknown as GroupDetails;
+    const groupData = groups.data[0];
     const lastExpense = lastGroupExpenseData.length === 1
-        ? lastGroupExpenseData[0] as unknown as { created_at: string }
+        ? lastGroupExpenseData[0]
         : { created_at: groupData.created_at };
 
-    const groupWithDetails = {
+    const profiles: Profile[] = groupData.groups_profiles
+        .map((gp) => gp.profiles)
+        .flat();
+
+    const groupWithDetails: GetGroupDetailsResponse = {
         id: groupData.id,
         name: groupData.name,
         currency: groupData.currency,
         invite_code: groupData.invite_code,
-        profiles: groupData.profiles,
+        profiles: profiles,
         created_at: groupData.created_at,
         updated_at: lastExpense.created_at,
     };
 
     return new Response(
-        JSON.stringify(
-            groupWithDetails as GetGroupDetailsResponse,
-        ),
+        JSON.stringify(groupWithDetails),
         {
             headers: { "Content-Type": "application/json" },
             status: STATUS_CODE.OK,
