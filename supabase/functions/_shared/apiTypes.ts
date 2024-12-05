@@ -38,6 +38,7 @@ export type GetBalancesRequest = {
 };
 
 export type AddExpenseRequest = {
+    paid_by: string;
     group_id: string;
     description: string;
     category: string;

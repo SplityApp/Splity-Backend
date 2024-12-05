@@ -7,7 +7,7 @@ import { ExpenseCategory } from "../_shared/enums.ts";
 console.info("[EDGE] add-expense");
 
 Deno.serve(async (req) => {
-    const { group_id, description, category, amount, splits }:
+    const { group_id, description, category, amount, splits, paid_by }:
         AddExpenseRequest = await req.json();
     const token = req.headers.get("Authorization")?.replace("Bearer ", "");
 
@@ -67,7 +67,7 @@ Deno.serve(async (req) => {
             description,
             category,
             amount,
-            paid_by: userData.user.id,
+            paid_by,
         })
         .select("id")
         .single();
