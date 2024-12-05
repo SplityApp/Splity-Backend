@@ -129,9 +129,9 @@ Deno.serve(async (req) => {
             }
 
             if (split.user_id !== paid_by) { // Skip self-payments
-                let finalFromUser: string;
-                let finalToUser: string;
-                let finalAmount = 0; // Initialize with default value
+                let finalFromUser: string = split.user_id; // Initialize with default values
+                let finalToUser: string = paid_by;
+                let finalAmount: number = split.amount;
 
                 if (existingBalances && existingBalances.length > 0) {
                     const balance = existingBalances[0];
@@ -142,22 +142,25 @@ Deno.serve(async (req) => {
                         // Existing debt in same direction
                         finalFromUser = split.user_id;
                         finalToUser = paid_by;
-                        finalAmount = balance.amount + split.amount;
+                        finalAmount = Number(balance.amount) +
+                            Number(split.amount);
                     } else if (
                         balance.from_user === paid_by &&
                         balance.to_user === split.user_id
                     ) {
                         // Existing debt in opposite direction
-                        if (balance.amount > split.amount) {
+                        if (Number(balance.amount) > Number(split.amount)) {
                             // Keep same direction, reduce amount
                             finalFromUser = paid_by;
                             finalToUser = split.user_id;
-                            finalAmount = balance.amount - split.amount;
+                            finalAmount = Number(balance.amount) -
+                                Number(split.amount);
                         } else {
                             // Switch direction
                             finalFromUser = split.user_id;
                             finalToUser = paid_by;
-                            finalAmount = split.amount - balance.amount;
+                            finalAmount = Number(split.amount) -
+                                Number(balance.amount);
                         }
                     }
 
@@ -172,11 +175,6 @@ Deno.serve(async (req) => {
                     if (deleteError) {
                         throw deleteError;
                     }
-                } else {
-                    // No existing balance, create new
-                    finalFromUser = split.user_id;
-                    finalToUser = paid_by;
-                    finalAmount = split.amount;
                 }
 
                 // Only insert if there's a non-zero balance
@@ -202,7 +200,7 @@ Deno.serve(async (req) => {
             status: STATUS_CODE.Created,
             headers: { "Content-Type": "application/json" },
         });
-    } catch (error) {
+    } catch (error: any) {
         // Rollback: delete the expense and related records if any error occurs
         if (expenseData?.id) {
             await supabaseService
