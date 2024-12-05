@@ -26,6 +26,7 @@ Deno.serve(async (req) => {
     }
 
     if (
+        !paid_by ||
         !group_id ||
         !description ||
         !category ||
