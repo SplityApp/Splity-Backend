@@ -52,6 +52,13 @@ Deno.serve(async (req) => {
             JSON.stringify({ message: error.message }),
             { status: STATUS_CODE.BadRequest },
         );
+    } else if (!data.fcm_token) {
+        return new Response(
+            JSON.stringify({
+                message: "No FCM token found for the target user",
+            }),
+            { status: STATUS_CODE.BadRequest },
+        );
     }
 
     const fcmToken = data!.fcm_token as string;
