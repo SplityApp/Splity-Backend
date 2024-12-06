@@ -45,73 +45,49 @@ Deno.serve(async (req) => {
         );
     }
 
-    const groupsIds = groups.data.map((group: Group) => group.id);
     const myId = data.user.id;
 
-    const expensesWithinGroups = await Promise.all(
-        groupsIds.map(async (groupId: string) => {
-            const expensesPopulatedWithPayments = await supabaseService.supabase
-                .from("expenses")
-                .select(
-                    `description, paid_by, amount, payments ( expense_id, user_id, amount, state)`,
-                )
-                .eq("group_id", groupId);
+    const groupsWithMyBalances = await Promise.all(
+        groups.data.map(async (group: Group) => {
+            const {
+                data: balancesWithinGroup,
+                error: balancesWithinGroupError,
+            } = await supabaseService.supabase
+                .from("user_group_balances")
+                .select("from_user, to_user, amount")
+                .eq("group_id", group.id);
+
+            if (balancesWithinGroupError) {
+                console.error(
+                    JSON.stringify(balancesWithinGroupError, null, 2),
+                );
+                throw balancesWithinGroupError;
+            }
+
+            if (balancesWithinGroup) {
+                const moneyOwedToMeInGroup = balancesWithinGroup
+                    .filter((balance) => balance.to_user === myId)
+                    .reduce((acc, balance) => acc + balance.amount, 0);
+
+                const moneyIHaveToPayInGroup = balancesWithinGroup
+                    .filter((balance) => balance.from_user === myId)
+                    .reduce((acc, balance) => acc + balance.amount, 0);
+
+                const myMoneyBalanceInGroup = moneyOwedToMeInGroup -
+                    moneyIHaveToPayInGroup;
+
+                return {
+                    ...group,
+                    my_balance: myMoneyBalanceInGroup,
+                };
+            }
+
             return {
-                groupId,
-                data: expensesPopulatedWithPayments.data,
+                ...group,
+                my_balance: 0,
             };
         }),
     );
-
-    const groupsWithMyBalances = groups.data.map((group: Group) => (
-        {
-            ...group,
-            my_balance: 0,
-        }
-    ));
-
-    for (
-        const { data: expensesWithinOneGroup, groupId } of expensesWithinGroups
-    ) {
-        console.log(`\nGroup: ${groupId}`);
-        let allPaidByMeInGroup = 0;
-        let moneyOwedToMeInGroup = 0;
-        let moneyIHaveToPayInGroup = 0;
-
-        if (!expensesWithinOneGroup) {
-            console.error("No expenses found");
-            continue;
-        }
-
-        for (const expense of expensesWithinOneGroup) {
-            console.log(
-                `Expense: ${expense.description}, amount: ${expense.amount}`,
-            );
-            console.log(JSON.stringify(expense, null, 2));
-            if (expense.paid_by === myId) {
-                allPaidByMeInGroup += expense.amount;
-            }
-
-            for (const payment of expense.payments) {
-                if (expense.paid_by == myId && payment.state === "pending") {
-                    moneyOwedToMeInGroup += payment.amount;
-                } else if (
-                    payment.user_id == myId && payment.state === "pending"
-                ) {
-                    moneyIHaveToPayInGroup += payment.amount;
-                }
-            }
-        }
-
-        console.log(`Total paid by me in group: ${allPaidByMeInGroup}`);
-        console.log(`Total owed to me in group: ${moneyOwedToMeInGroup}`);
-        console.log(`Total I have to pay in group: ${moneyIHaveToPayInGroup}`);
-        const myMoneyBalanceInGroup = moneyOwedToMeInGroup -
-            moneyIHaveToPayInGroup;
-        console.log(`My balance in group: ${myMoneyBalanceInGroup}`);
-        groupsWithMyBalances.find((group) => group.id === groupId)!.my_balance =
-            myMoneyBalanceInGroup;
-    }
 
     return new Response(
         JSON.stringify({

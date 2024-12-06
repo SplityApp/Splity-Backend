@@ -106,7 +106,6 @@ export type GetGroupExpensesResponse = {
     category: string;
     amount: number;
     paid_by: string;
-    state: string;
     created_at: string;
 }[];
 

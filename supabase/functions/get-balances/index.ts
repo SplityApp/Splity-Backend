@@ -19,9 +19,9 @@ Deno.serve(async (req) => {
         );
     }
 
-    const groupData: { group_id: string } = await req.json();
+    const { group_id: groupId } = await req.json();
 
-    if (!groupData.group_id) {
+    if (!groupId) {
         return new Response(
             JSON.stringify({ message: "Missing groupId" }),
             { status: STATUS_CODE.BadRequest },
@@ -30,35 +30,39 @@ Deno.serve(async (req) => {
 
     const supabaseService = new SupabaseService(token);
 
-    const { data, error } = await supabaseService.getUser(token);
-
-    if (error) {
+    const { data: userData, error: userError } = await supabaseService.getUser(
+        token,
+    );
+    if (userError) {
         return new Response(
-            JSON.stringify({ message: error.message }),
+            JSON.stringify({ message: userError.message }),
             { status: STATUS_CODE.Unauthorized },
         );
     }
+    const requestUserID = userData.user.id;
 
-    const requestUserID = data.user.id;
-
-    const group = await supabaseService.supabase
+    const { data: groupData, error: groupDataError } = await supabaseService
+        .supabase
         .from("groups")
         .select(
-            `id, name, created_at, groups_profiles!inner ( user_id, group_id )`,
-        ).eq("id", groupData.group_id);
+            `groups_profiles!inner ( user_id,
+                                    group_id,
+                                    profiles!inner ( username ) )`,
+        ).eq("id", groupId)
+        .single();
 
-    if (group.error) {
+    if (groupDataError) {
         return new Response(
-            JSON.stringify({ message: group.error.message }),
+            JSON.stringify({ message: groupDataError.message }),
             { status: STATUS_CODE.InternalServerError },
         );
     }
 
     if (
-        !group.data[0].groups_profiles.flatMap((profile: GroupProfiles) =>
+        !groupData.groups_profiles.flatMap((profile: GroupProfiles) =>
             profile.user_id
         )
-            .includes(data.user.id)
+            .includes(requestUserID)
     ) {
         return new Response(
             JSON.stringify({ message: "User not in group" }),
@@ -66,72 +70,48 @@ Deno.serve(async (req) => {
         );
     }
 
-    const expensesPopulatedWithPayments = await supabaseService.supabase
-        .from("expenses")
-        .select(
-            `description, paid_by, amount, payments ( expense_id, user_id, amount, state)`,
-        )
-        .eq("group_id", groupData.group_id);
-
-    if (expensesPopulatedWithPayments.error) {
-        return new Response(
-            JSON.stringify({
-                message: expensesPopulatedWithPayments.error.message,
-            }),
-            { status: STATUS_CODE.InternalServerError },
-        );
-    }
-
-    const usersWithinGroup = group.data[0].groups_profiles.map((group) => (
+    const usersWithinGroup = groupData.groups_profiles.map((group) => (
         {
             id: group.user_id,
             balance: 0,
+            name: (group.profiles as any).username, // SDK says its array but its object
         }
     ));
 
     for (const user of usersWithinGroup) {
-        let moneyOwedToMeInGroup = 0;
-        let moneyIHaveToPayInGroup = 0;
+        const {
+            data: balancesWithinGroup,
+            error: balancesWithinGroupError,
+        } = await supabaseService.supabase
+            .from("user_group_balances")
+            .select("from_user, to_user, amount")
+            .eq("group_id", groupId);
 
-        for (const expense of expensesPopulatedWithPayments.data) {
-            for (const payment of expense.payments) {
-                if (expense.paid_by == user.id && payment.state === "pending") {
-                    moneyOwedToMeInGroup += payment.amount;
-                } else if (
-                    payment.user_id == user.id && payment.state === "pending"
-                ) {
-                    moneyIHaveToPayInGroup += payment.amount;
-                }
-            }
+        if (balancesWithinGroupError) {
+            console.error(
+                JSON.stringify(balancesWithinGroupError, null, 2),
+            );
+            throw balancesWithinGroupError;
         }
 
-        const myMoneyBalanceInGroup = moneyOwedToMeInGroup -
-            moneyIHaveToPayInGroup;
+        if (balancesWithinGroup) {
+            const moneyOwedToMeInGroup = balancesWithinGroup
+                .filter((balance) => balance.to_user === user.id)
+                .reduce((acc, balance) => acc + Number(balance.amount), 0);
 
-        user.balance = myMoneyBalanceInGroup;
+            const moneyIHaveToPayInGroup = balancesWithinGroup
+                .filter((balance) => balance.from_user === user.id)
+                .reduce((acc, balance) => acc + Number(balance.amount), 0);
+
+            const myMoneyBalanceInGroup = moneyOwedToMeInGroup -
+                moneyIHaveToPayInGroup;
+
+            user.balance = myMoneyBalanceInGroup;
+        }
     }
 
     try {
-        const updatedUsers = await Promise.all(
-            usersWithinGroup.map(async (user) => {
-                const { data, error } = await supabaseService.supabase
-                    .from("profiles")
-                    .select("username")
-                    .eq("id", user.id)
-                    .single();
-
-                if (error) {
-                    throw new Error(error.message);
-                }
-
-                return {
-                    ...user,
-                    name: data.username,
-                };
-            }),
-        );
-
-        const requestUser = updatedUsers.find((user) =>
+        const requestUser = usersWithinGroup.find((user) =>
             user.id === requestUserID
         );
 
@@ -142,7 +122,7 @@ Deno.serve(async (req) => {
             );
         }
 
-        const filteredUsers = updatedUsers.filter((user) =>
+        const filteredUsers = usersWithinGroup.filter((user) =>
             user.id !== requestUserID
         );
 
@@ -153,10 +133,11 @@ Deno.serve(async (req) => {
 
         return new Response(JSON.stringify(response), {
             status: STATUS_CODE.OK,
+            headers: { "Content-Type": "application/json" },
         });
-    } catch (error) {
+    } catch (error: any) {
         return new Response(
-            JSON.stringify({ message: (error as Error).message }),
+            JSON.stringify({ message: error.message }),
             { status: STATUS_CODE.InternalServerError },
         );
     }

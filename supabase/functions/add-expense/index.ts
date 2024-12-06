@@ -80,39 +80,144 @@ Deno.serve(async (req) => {
         );
     }
 
-    for (const split of splits) {
-        const { error: debtorPaymentError } = await supabaseService
+    try {
+        // Insert expense
+        const { data: expenseData, error: expenseError } = await supabaseService
             .supabase
-            .from("payments")
+            .from("expenses")
             .insert({
-                expense_id: expenseData.id,
-                user_id: split.user_id,
-                amount: split.amount,
-                state: split.user_id === paid_by ? "fulfilled" : "pending",
-            });
+                group_id,
+                description,
+                category,
+                amount,
+                paid_by,
+            })
+            .select("id")
+            .single();
 
-        if (debtorPaymentError) {
+        if (expenseError) {
+            throw expenseError;
+        }
+
+        // Insert payments
+        for (const split of splits) {
+            const { error: debtorPaymentError } = await supabaseService
+                .supabase
+                .from("payments")
+                .insert({
+                    expense_id: expenseData.id,
+                    user_id: split.user_id,
+                    amount: split.amount,
+                    state: split.user_id === paid_by ? "fulfilled" : "pending", //TODO: do wyjebania
+                });
+
+            if (debtorPaymentError) {
+                throw debtorPaymentError;
+            }
+
+            // Get existing balance between users (in both directions)
+            const { data: existingBalances, error: balanceCheckError } =
+                await supabaseService
+                    .supabase
+                    .from("user_group_balances")
+                    .select("*")
+                    .eq("group_id", group_id)
+                    .or(`and(from_user.eq.${split.user_id},to_user.eq.${paid_by}),and(from_user.eq.${paid_by},to_user.eq.${split.user_id})`);
+
+            if (balanceCheckError) {
+                throw balanceCheckError;
+            }
+
+            if (split.user_id !== paid_by) { // Skip self-payments
+                let finalFromUser: string = split.user_id; // Initialize with default values
+                let finalToUser: string = paid_by;
+                let finalAmount: number = split.amount;
+
+                if (existingBalances && existingBalances.length > 0) {
+                    const balance = existingBalances[0];
+                    if (
+                        balance.from_user === split.user_id &&
+                        balance.to_user === paid_by
+                    ) {
+                        // Existing debt in same direction
+                        finalFromUser = split.user_id;
+                        finalToUser = paid_by;
+                        finalAmount = Number(balance.amount) +
+                            Number(split.amount);
+                    } else if (
+                        balance.from_user === paid_by &&
+                        balance.to_user === split.user_id
+                    ) {
+                        // Existing debt in opposite direction
+                        if (Number(balance.amount) > Number(split.amount)) {
+                            // Keep same direction, reduce amount
+                            finalFromUser = paid_by;
+                            finalToUser = split.user_id;
+                            finalAmount = Number(balance.amount) -
+                                Number(split.amount);
+                        } else {
+                            // Switch direction
+                            finalFromUser = split.user_id;
+                            finalToUser = paid_by;
+                            finalAmount = Number(split.amount) -
+                                Number(balance.amount);
+                        }
+                    }
+
+                    // Delete existing balance if exists
+                    const { error: deleteError } = await supabaseService
+                        .supabase
+                        .from("user_group_balances")
+                        .delete()
+                        .eq("group_id", group_id)
+                        .or(`and(from_user.eq.${split.user_id},to_user.eq.${paid_by}),and(from_user.eq.${paid_by},to_user.eq.${split.user_id})`);
+
+                    if (deleteError) {
+                        throw deleteError;
+                    }
+                }
+
+                // Only insert if there's a non-zero balance
+                if (finalAmount > 0) {
+                    const { error: insertError } = await supabaseService
+                        .supabase
+                        .from("user_group_balances")
+                        .insert({
+                            group_id,
+                            from_user: finalFromUser,
+                            to_user: finalToUser,
+                            amount: finalAmount,
+                        });
+
+                    if (insertError) {
+                        throw insertError;
+                    }
+                }
+            }
+        }
+
+        return new Response(null, {
+            status: STATUS_CODE.Created,
+            headers: { "Content-Type": "application/json" },
+        });
+    } catch (error: any) {
+        // Rollback: delete the expense and related records if any error occurs
+        if (expenseData?.id) {
             await supabaseService
                 .supabase
                 .from("expenses")
                 .delete()
                 .eq("id", expenseData.id);
-
             await supabaseService
                 .supabase
                 .from("payments")
                 .delete()
                 .eq("expense_id", expenseData.id);
-
-            return new Response(
-                JSON.stringify({ message: debtorPaymentError.message }),
-                { status: STATUS_CODE.InternalServerError },
-            );
         }
-    }
 
-    return new Response(null, {
-        status: STATUS_CODE.Created,
-        headers: { "Content-Type": "application/json" },
-    });
+        return new Response(
+            JSON.stringify({ message: error.message }),
+            { status: STATUS_CODE.InternalServerError },
+        );
+    }
 });

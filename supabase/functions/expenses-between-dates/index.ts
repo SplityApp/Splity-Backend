@@ -76,7 +76,6 @@ Deno.serve(async (req) => {
                 expense_id, 
                 user_id, 
                 amount, 
-                state,
                 created_at
             )
         )`)
@@ -134,14 +133,6 @@ Deno.serve(async (req) => {
                 amount: Math.abs(expense.amount),
                 paid_by: expense.payer.username,
                 created_at: expense.created_at,
-                state: expense.payments.some(
-                        (payment) =>
-                            payment.state === "pending" &&
-                            (payment.user_id === data.user.id ||
-                                expense.paid_by === data.user.id),
-                    )
-                    ? "pending"
-                    : "fulfilled",
             });
             datesBetweenExpenseAmountMap.set(
                 key,

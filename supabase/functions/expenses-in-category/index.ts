@@ -76,8 +76,7 @@ Deno.serve(async (req) => {
             payments!inner (
                 expense_id, 
                 user_id, 
-                amount, 
-                state
+                amount
             )
         )`)
         .eq("groups_profiles.user_id", data.user.id)
@@ -113,21 +112,13 @@ Deno.serve(async (req) => {
                 amount: expense.amount,
                 paid_by: expense.payer.username,
                 created_at: expense.created_at,
-                state: expense.payments.some(
-                        (payment) =>
-                            payment.state === "pending" &&
-                            (payment.user_id === data.user.id ||
-                                expense.paid_by === data.user.id),
-                    )
-                    ? "pending"
-                    : "fulfilled",
             };
         });
     });
 
     return new Response(
         JSON.stringify(
-            expenses as unknown as GetGroupExpensesResponse,
+            expenses as GetGroupExpensesResponse[],
         ),
         {
             headers: { "Content-Type": "application/json" },
