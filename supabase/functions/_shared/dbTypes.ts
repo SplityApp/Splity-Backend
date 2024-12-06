@@ -25,7 +25,6 @@ export interface Payment {
     expense_id: string;
     user_id: string;
     amount: number;
-    state: "pending" | "fulfilled";
 }
 
 export interface GroupDetailsExpense {
