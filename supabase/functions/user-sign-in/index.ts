@@ -11,8 +11,9 @@ console.info("[EDGE] User-sign-in");
  * @see UserSignInResponse
  */
 Deno.serve(async (req) => {
-    const { password, email }: UserSignInRequest = await req.json();
-    logPayload(await req.json());
+    const body = await req.json() as UserSignInRequest;
+    logPayload(body);
+    const { password, email } = body;
 
     const supabaseService = new SupabaseService();
 

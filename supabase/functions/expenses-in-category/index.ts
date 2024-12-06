@@ -23,8 +23,9 @@ Deno.serve(async (req) => {
         );
     }
     const token = req.headers.get("Authorization")?.replace("Bearer ", "");
-    const { category }: GetExpensesInCategoryRequest = await req.json();
-    logPayload(await req.json());
+    const body = await req.json() as GetExpensesInCategoryRequest;
+    logPayload(body);
+    const { category } = body;
 
     if (!token) {
         return new Response(

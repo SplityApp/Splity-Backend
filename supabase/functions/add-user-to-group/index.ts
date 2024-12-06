@@ -19,8 +19,9 @@ Deno.serve(async (req) => {
     }
 
     const token = req.headers.get("Authorization")?.replace("Bearer ", "");
-    const { invite_code: inviteCode }: AddUserToGroupRequest = await req.json();
-    logPayload(await req.json());
+    const body = await req.json() as AddUserToGroupRequest;
+    logPayload(body);
+    const { invite_code: inviteCode } = body;
 
     if (!token) {
         return new Response(

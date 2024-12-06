@@ -10,13 +10,14 @@ console.info("[EDGE] User-sign-up");
  * @see UserSignUpResponse
  */
 Deno.serve(async (req) => {
+    const body = await req.json() as UserSignUpRequest;
+    logPayload(body);
     const {
         password,
         email,
         username,
         phone_number: phoneNumber,
-    }: UserSignUpRequest = await req.json();
-    logPayload(await req.json());
+    } = body;
 
     if (!email || !password || !username || !phoneNumber) {
         return new Response(

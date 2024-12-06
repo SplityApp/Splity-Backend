@@ -8,9 +8,9 @@ import { logPayload } from "../_shared/helpers.ts";
 console.info("[EDGE] add-expense");
 
 Deno.serve(async (req) => {
-    const { group_id, description, category, amount, splits, paid_by }:
-        AddExpenseRequest = await req.json();
-    logPayload(await req.json());
+    const body = await req.json() as AddExpenseRequest;
+    logPayload(body);
+    const { group_id, description, category, amount, splits, paid_by } = body;
     const token = req.headers.get("Authorization")?.replace("Bearer ", "");
 
     if (!token) {

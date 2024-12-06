@@ -12,8 +12,9 @@ console.info("[EDGE] create-group");
  */
 Deno.serve(async (req) => {
     const token = req.headers.get("Authorization")?.replace("Bearer ", "");
-    const { name, currency }: CreateGroupRequest = await req.json();
-    logPayload(await req.json());
+    const body = await req.json() as CreateGroupRequest;
+    logPayload(body);
+    const { name, currency } = body;
 
     if (!token) {
         return new Response(

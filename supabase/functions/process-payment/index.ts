@@ -3,6 +3,7 @@ import { STATUS_CODE } from "jsr:@std/http/status";
 import { SupabaseService } from "../_shared/SupabaseService.ts";
 import type { Payment } from "../_shared/dbTypes.ts";
 import { logPayload } from "../_shared/helpers.ts";
+import { ProcessPaymentRequest } from "../_shared/apiTypes.ts";
 
 console.info("[EDGE] process-payment");
 
@@ -32,8 +33,9 @@ Deno.serve(async (req) => {
         );
     }
 
-    const { expense_id: expenseId, payer_id: payerId } = await req.json();
-    logPayload(await req.json());
+    const body = await req.json() as ProcessPaymentRequest;
+    logPayload(body);
+    const { expense_id: expenseId, payer_id: payerId } = body;
     if (!expenseId || !payerId) {
         return new Response(
             JSON.stringify({ message: "Missing data" }),

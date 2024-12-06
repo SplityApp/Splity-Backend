@@ -3,6 +3,7 @@ import { STATUS_CODE } from "jsr:@std/http/status";
 import { SupabaseService } from "../_shared/SupabaseService.ts";
 import type { GroupProfiles } from "../_shared/dbTypes.ts";
 import { logPayload } from "../_shared/helpers.ts";
+import { GetBalancesRequest } from "../_shared/apiTypes.ts";
 
 console.log("[EDGE] Get-balances");
 
@@ -20,8 +21,9 @@ Deno.serve(async (req) => {
         );
     }
 
-    const { group_id: groupId } = await req.json();
-    logPayload(await req.json());
+    const body = await req.json() as GetBalancesRequest;
+    logPayload(body);
+    const { group_id: groupId } = body;
 
     if (!groupId) {
         return new Response(

@@ -78,6 +78,10 @@ export type GetNotificationsRequest = {
     description: string;
 };
 
+export type UserChangePasswordRequest = {
+    email: string;
+};
+
 // Response types
 
 export type GetUserInfoResponse = {

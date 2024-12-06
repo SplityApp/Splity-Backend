@@ -18,8 +18,9 @@ Deno.serve(async (req) => {
         );
     }
     const token = req.headers.get("Authorization")?.replace("Bearer ", "");
-    const { group_id: groupId }: GetGroupDetailsRequest = await req.json();
-    logPayload(await req.json());
+    const body = await req.json() as GetGroupDetailsRequest;
+    logPayload(body);
+    const { group_id: groupId } = body;
 
     if (!token) {
         return new Response(

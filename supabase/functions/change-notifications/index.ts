@@ -22,9 +22,9 @@ Deno.serve(async (req) => {
     }
 
     const token = req.headers.get("Authorization")?.replace("Bearer ", "");
-    const { allowed_notifications }: ChangeNotificationsRequest = await req
-        .json();
-    logPayload(await req.json());
+    const body = await req.json() as ChangeNotificationsRequest;
+    logPayload(body);
+    const { allowed_notifications } = body;
 
     if (!token) {
         return new Response(

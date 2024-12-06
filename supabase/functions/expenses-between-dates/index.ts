@@ -25,9 +25,9 @@ Deno.serve(async (req) => {
         );
     }
     const token = req.headers.get("Authorization")?.replace("Bearer ", "");
-    const { start_date, end_date }: GetExpensesBetweenDatesRequest = await req
-        .json();
-    logPayload(await req.json());
+    const body = await req.json() as GetExpensesBetweenDatesRequest;
+    logPayload(body);
+    const { start_date, end_date } = body;
 
     if (!token) {
         return new Response(

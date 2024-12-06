@@ -1,6 +1,8 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { STATUS_CODE } from "jsr:@std/http/status";
 import { SupabaseService } from "../_shared/SupabaseService.ts";
+import { UserChangePasswordRequest } from "../_shared/apiTypes.ts";
+import { logPayload } from "../_shared/helpers.ts";
 
 console.info("[EDGE] user-reset-password");
 
@@ -15,7 +17,9 @@ Deno.serve(async (req) => {
             { status: STATUS_CODE.MethodNotAllowed },
         );
     }
-    const { email } = await req.json();
+    const body = await req.json() as UserChangePasswordRequest;
+    logPayload(body);
+    const { email } = body;
     if (!email?.trim()?.length) {
         return new Response(
             JSON.stringify({ message: "Missing email" }),

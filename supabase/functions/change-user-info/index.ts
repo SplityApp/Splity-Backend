@@ -27,9 +27,9 @@ Deno.serve(async (req) => {
         "",
     );
 
-    const { username, char_image, email }: ChangeUserInfoRequest = await req
-        .json();
-    logPayload(await req.json());
+    const body = await req.json() as ChangeUserInfoRequest;
+    logPayload(body);
+    const { username, char_image, email } = body;
 
     if (!token) {
         return new Response(
