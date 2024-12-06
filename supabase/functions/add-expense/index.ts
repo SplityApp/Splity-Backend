@@ -108,7 +108,6 @@ Deno.serve(async (req) => {
                     expense_id: expenseData.id,
                     user_id: split.user_id,
                     amount: split.amount,
-                    state: split.user_id === paid_by ? "fulfilled" : "pending", //TODO: do wyjebania
                 });
 
             if (debtorPaymentError) {
