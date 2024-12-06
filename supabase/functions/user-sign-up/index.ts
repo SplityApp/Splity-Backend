@@ -2,6 +2,7 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { STATUS_CODE } from "jsr:@std/http/status";
 import { SupabaseService } from "../_shared/SupabaseService.ts";
 import { UserSignUpRequest, UserSignUpResponse } from "../_shared/apiTypes.ts";
+import { logPayload } from "../_shared/helpers.ts";
 
 console.info("[EDGE] User-sign-up");
 /**
@@ -15,6 +16,7 @@ Deno.serve(async (req) => {
         username,
         phone_number: phoneNumber,
     }: UserSignUpRequest = await req.json();
+    logPayload(await req.json());
 
     if (!email || !password || !username || !phoneNumber) {
         return new Response(

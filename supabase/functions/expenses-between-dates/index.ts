@@ -7,6 +7,7 @@ import {
     type GetExpensesBetweenDatesResponse,
     type GetGroupExpensesResponse,
 } from "../_shared/apiTypes.ts";
+import { logPayload } from "../_shared/helpers.ts";
 
 console.info("[EDGE] expenses-between-dates");
 
@@ -26,6 +27,7 @@ Deno.serve(async (req) => {
     const token = req.headers.get("Authorization")?.replace("Bearer ", "");
     const { start_date, end_date }: GetExpensesBetweenDatesRequest = await req
         .json();
+    logPayload(await req.json());
 
     if (!token) {
         return new Response(
@@ -156,7 +158,7 @@ Deno.serve(async (req) => {
         ),
         {
             headers: { "Content-Type": "application/json" },
-            status: STATUS_CODE.Created,
+            status: STATUS_CODE.OK,
         },
     );
 });

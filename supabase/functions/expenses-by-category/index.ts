@@ -7,6 +7,7 @@ import {
     type GetExpensesByCategoryResponse,
 } from "../_shared/apiTypes.ts";
 import { ExpenseCategory } from "../_shared/enums.ts";
+import { logPayload } from "../_shared/helpers.ts";
 
 console.info("[EDGE] expenses-by-category");
 
@@ -26,6 +27,7 @@ Deno.serve(async (req) => {
     const token = req.headers.get("Authorization")?.replace("Bearer ", "");
     const { start_date, end_date }: GetExpensesBetweenDatesRequest = await req
         .json();
+    logPayload(await req.json());
 
     if (!token) {
         return new Response(

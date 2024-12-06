@@ -5,6 +5,7 @@ import {
     type ChangeNotificationsRequest,
     type ChangeNotificationsResponse,
 } from "../_shared/apiTypes.ts";
+import { logPayload } from "../_shared/helpers.ts";
 
 console.info("[EDGE] change-notifications");
 
@@ -23,6 +24,7 @@ Deno.serve(async (req) => {
     const token = req.headers.get("Authorization")?.replace("Bearer ", "");
     const { allowed_notifications }: ChangeNotificationsRequest = await req
         .json();
+    logPayload(await req.json());
 
     if (!token) {
         return new Response(

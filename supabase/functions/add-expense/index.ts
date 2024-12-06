@@ -3,12 +3,14 @@ import { AddExpenseRequest } from "../_shared/apiTypes.ts";
 import { SupabaseService } from "../_shared/SupabaseService.ts";
 import { STATUS_CODE } from "jsr:@std/http/status";
 import { ExpenseCategory } from "../_shared/enums.ts";
+import { logPayload } from "../_shared/helpers.ts";
 
 console.info("[EDGE] add-expense");
 
 Deno.serve(async (req) => {
     const { group_id, description, category, amount, splits, paid_by }:
         AddExpenseRequest = await req.json();
+    logPayload(await req.json());
     const token = req.headers.get("Authorization")?.replace("Bearer ", "");
 
     if (!token) {

@@ -6,6 +6,7 @@ import {
     type GetUserInfoResponse,
 } from "../_shared/apiTypes.ts";
 import type { Profile } from "../_shared/dbTypes.ts";
+import { logPayload } from "../_shared/helpers.ts";
 
 console.info("[EDGE] change-user-info");
 
@@ -28,6 +29,7 @@ Deno.serve(async (req) => {
 
     const { username, char_image, email }: ChangeUserInfoRequest = await req
         .json();
+    logPayload(await req.json());
 
     if (!token) {
         return new Response(

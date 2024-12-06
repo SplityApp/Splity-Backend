@@ -1,6 +1,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { STATUS_CODE } from "jsr:@std/http/status";
 import { SupabaseService } from "../_shared/SupabaseService.ts";
+import { logPayload } from "../_shared/helpers.ts";
 
 console.info("[EDGE] set-fcm-token");
 
@@ -30,6 +31,7 @@ Deno.serve(async (req) => {
     }
 
     const body: { fcm_token: string } = await req.json();
+    logPayload(await req.json());
 
     if (!body.fcm_token) {
         return new Response(
