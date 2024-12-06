@@ -70,7 +70,6 @@ Deno.serve(async (req) => {
                 expense_id, 
                 user_id, 
                 amount, 
-                state
             )
         )`)
         .eq("groups_profiles.user_id", data.user.id)
