@@ -141,8 +141,8 @@ Deno.serve(async (req) => {
             });
             datesBetweenExpenseAmountMap.set(
                 key,
-                datesBetweenExpenseAmountMap.get(key) ??
-                    0 + Math.abs(expense.amount),
+                (datesBetweenExpenseAmountMap.get(key) ?? 0) +
+                    (Math.abs(expense.amount) ?? 0),
             );
         });
     });
