@@ -94,15 +94,18 @@ Deno.serve(async (req) => {
     } else if (!groups.data.length) {
         return new Response(
             JSON.stringify([] as GetExpensesBetweenDatesResponse),
-            { status: STATUS_CODE.NotFound },
+            { status: STATUS_CODE.OK },
         );
     }
 
-    const groupData = groups.data as unknown as GroupDetailsWithExpenses[];
-    if (groupData.some((group) => !group?.expenses?.length)) {
+    const groupData = (groups.data as unknown as GroupDetailsWithExpenses[])
+        .filter(
+            (group) => group.expenses.length,
+        );
+    if (!groupData.length) {
         return new Response(
             JSON.stringify([] as GetExpensesBetweenDatesResponse),
-            { status: STATUS_CODE.NotFound },
+            { status: STATUS_CODE.OK },
         );
     }
 
