@@ -27,14 +27,14 @@ Deno.serve(async (req) => {
     const token = req.headers.get("Authorization")?.replace("Bearer ", "");
     const body = await req.json() as GetExpensesBetweenDatesRequest;
     logPayload(body);
-    const { start_date, end_date } = body;
+    const { start_date, end_date, currency } = body;
 
     if (!token) {
         return new Response(
             JSON.stringify({ message: "Missing token" }),
             { status: STATUS_CODE.Unauthorized },
         );
-    } else if (!start_date?.length || !end_date?.length) {
+    } else if (!start_date?.length || !end_date?.length || !currency?.length) {
         return new Response(
             JSON.stringify({ message: "Missing dates" }),
             { status: STATUS_CODE.BadRequest },
@@ -77,7 +77,8 @@ Deno.serve(async (req) => {
         .eq("groups_profiles.user_id", data.user.id)
         .eq("expenses.payments.user_id", data.user.id)
         .gte("expenses.payments.created_at", start_date)
-        .lte("expenses.payments.created_at", end_date);
+        .lte("expenses.payments.created_at", end_date)
+        .eq("currency", currency);
 
     if (groups.error) {
         return new Response(

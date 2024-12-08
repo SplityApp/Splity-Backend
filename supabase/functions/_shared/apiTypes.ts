@@ -60,6 +60,7 @@ export type GetExpensesInCategoryRequest = {
 export type GetExpensesBetweenDatesRequest = {
     start_date: string;
     end_date: string;
+    currency: string;
 };
 
 export type ChangeUserInfoRequest = {
