@@ -17,6 +17,7 @@ export type GetGroupDetailsRequest = {
 };
 
 export type ProcessPaymentRequest = {
+    group_id: string;
     receiver_id: string;
     amount: number;
 };

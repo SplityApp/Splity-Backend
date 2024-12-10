@@ -93,7 +93,7 @@ Deno.serve(async (req) => {
     if (!groupData?.expenses?.length) {
         return new Response(
             JSON.stringify([] as GetGroupExpensesResponse),
-            { status: STATUS_CODE.NotFound },
+            { status: STATUS_CODE.OK },
         );
     }
 
