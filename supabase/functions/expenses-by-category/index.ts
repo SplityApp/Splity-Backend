@@ -36,7 +36,7 @@ Deno.serve(async (req) => {
         );
     } else if (!start_date?.length || !end_date?.length || !currency?.length) {
         return new Response(
-            JSON.stringify({ message: "Missing dates" }),
+            JSON.stringify({ message: "Missing dates or currency" }),
             { status: STATUS_CODE.BadRequest },
         );
     }
