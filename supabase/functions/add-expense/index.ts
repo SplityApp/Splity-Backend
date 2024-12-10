@@ -51,7 +51,7 @@ Deno.serve(async (req) => {
     });
 
     const supabaseService = new SupabaseService(token);
-    const { data: userData, error: userError } = await supabaseService.getUser(
+    const { error: userError } = await supabaseService.getUser(
         token,
     );
 
@@ -83,24 +83,6 @@ Deno.serve(async (req) => {
     }
 
     try {
-        // Insert expense
-        const { data: expenseData, error: expenseError } = await supabaseService
-            .supabase
-            .from("expenses")
-            .insert({
-                group_id,
-                description,
-                category,
-                amount,
-                paid_by,
-            })
-            .select("id")
-            .single();
-
-        if (expenseError) {
-            throw expenseError;
-        }
-
         // Insert payments
         for (const split of splits) {
             const { error: debtorPaymentError } = await supabaseService
