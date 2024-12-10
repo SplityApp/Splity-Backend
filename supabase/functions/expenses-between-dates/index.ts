@@ -54,6 +54,7 @@ Deno.serve(async (req) => {
 
     const startDate = new Date(start_date);
     const endDate = new Date(end_date);
+    endDate.setDate(endDate.getDate() + 1);
 
     const groups = await supabaseService.supabase
         .from("groups")

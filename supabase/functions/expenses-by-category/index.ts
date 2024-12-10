@@ -40,6 +40,9 @@ Deno.serve(async (req) => {
             { status: STATUS_CODE.BadRequest },
         );
     }
+    const startDate = new Date(start_date);
+    const endDate = new Date(end_date);
+    endDate.setDate(endDate.getDate() + 1);
 
     const supabaseService = new SupabaseService(token);
 
@@ -76,8 +79,8 @@ Deno.serve(async (req) => {
         )`)
         .eq("groups_profiles.user_id", data.user.id)
         .eq("expenses.payments.user_id", data.user.id)
-        .gte("expenses.payments.created_at", start_date)
-        .lte("expenses.payments.created_at", end_date)
+        .gte("expenses.payments.created_at", startDate.toISOString())
+        .lte("expenses.payments.created_at", endDate.toISOString())
         .eq("currency", currency);
 
     if (groups.error) {
