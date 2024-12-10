@@ -23,27 +23,45 @@ Deno.serve(async (req) => {
 
     const supabaseService = new SupabaseService(token);
 
-    const { data: _, error: getUserError } = await supabaseService.getUser(
-        token,
-    );
-    if (getUserError) {
+    const { data: userData, error: userDataError } = await supabaseService
+        .getUser(
+            token,
+        );
+    if (userDataError) {
         return new Response(
-            JSON.stringify({ message: getUserError.message }),
+            JSON.stringify({ message: userDataError.message }),
             { status: STATUS_CODE.Unauthorized },
         );
     }
 
     const body = await req.json() as ProcessPaymentRequest;
     logPayload(body);
-    const { expense_id: expenseId, payer_id: payerId } = body;
-    if (!expenseId || !payerId) {
+    const { receiver_id: receiverId, amount } = body;
+    if (!receiverId || !amount) {
         return new Response(
             JSON.stringify({ message: "Missing data" }),
             { status: STATUS_CODE.BadRequest },
         );
     }
 
-    //TODO: trzeba napisac na nowo
+    // insert to transactions
+    const { data: paymentData, error: paymentError } = await supabaseService
+        .supabase
+        .from("transactions")
+        .insert({
+            id: userData.user.id,
+            receiver_id: receiverId,
+            amount,
+        });
+
+    if (paymentError) {
+        return new Response(
+            JSON.stringify({ message: paymentError.message }),
+            { status: STATUS_CODE.InternalServerError },
+        );
+    }
+
+    // HERE: Regulate the balance of the sender and receiver
 
     return new Response(
         null,

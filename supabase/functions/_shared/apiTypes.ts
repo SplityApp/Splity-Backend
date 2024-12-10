@@ -17,8 +17,8 @@ export type GetGroupDetailsRequest = {
 };
 
 export type ProcessPaymentRequest = {
-    payer_id: string;
-    expense_id: string;
+    receiver_id: string;
+    amount: number;
 };
 
 export type UserSignInRequest = {
