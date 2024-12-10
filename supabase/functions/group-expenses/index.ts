@@ -108,6 +108,11 @@ Deno.serve(async (req) => {
         };
     });
 
+    expenses.sort((a, b) => {
+        return new Date(b.created_at).getTime() -
+            new Date(a.created_at).getTime();
+    });
+
     return new Response(
         JSON.stringify(
             expenses as GetGroupExpensesResponse,
